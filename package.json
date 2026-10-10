@@ -30,7 +30,8 @@
     "animations": "tsx scripts/capture-animations.ts",
     "smoke": "tsx scripts/smoke-check.ts",
     "fixtures:check": "python3 scripts/make_fixtures.py --check",
-    "vendor:engine": "tsx scripts/vendor-engine.ts"
+    "vendor:engine": "tsx scripts/vendor-engine.ts",
+    "precompute": "tsx scripts/precompute.ts"
   },
   "dependencies": {
     "katex": "^0.16.47",

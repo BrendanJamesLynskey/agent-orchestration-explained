@@ -51,6 +51,11 @@ map["fixtures/orchestration_results.md"] = "src/data/orchestration_results.md";
 map["fixtures/langgraph_recordings.json"] =
   "src/data/langgraph_recordings.json";
 map["conformance/langgraph_graphs.py"] = "src/data/langgraph_graphs.py.txt";
+// engine 1.7: patterns, the discrete-event simulation, reliability (fixtures and recorded results)
+map["fixtures/orchestration2_fixtures.json"] =
+  "tests/fixtures/orchestration2_fixtures.json";
+map["fixtures/orchestration2_results.md"] =
+  "src/data/orchestration2_results.md";
 
 const files: Record<string, { from: string; sha256: string }> = {};
 for (const [from, to] of Object.entries(map)) {

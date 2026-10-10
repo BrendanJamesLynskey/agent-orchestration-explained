@@ -6,7 +6,9 @@
 For every chapter (src/data/chapter_configs.json), everything it animates and quotes, computed by
 the reference: each graph session's spec, layout and super-step frames (chapters 1 and 2), each
 checkpoint session's timeline (chapter 3), and every durable-execution run the widget offers plus
-the seeded charge sweeps (chapter 4). tests/unit/frames.test.ts recomputes them with the vendored
+the seeded charge sweeps (chapter 4); since engine 1.7, the patterns grid and the default task's
+plans and frames (chapter 5), the fan-out studies (6), the reliability studies (7), the load sweep
+and its detailed runs (8) and the chooser's tables (9). tests/unit/frames.test.ts recomputes them with the vendored
 TS port (src/lib/engine's runChapter) and requires equality; tests/e2e/frames.spec.ts checks the
 captions on the page.
 
@@ -21,7 +23,10 @@ import json
 import sys
 from pathlib import Path
 
+from agent_loop_sim.orchestration import des as DES
 from agent_loop_sim.orchestration import durable as D
+from agent_loop_sim.orchestration import patterns as P
+from agent_loop_sim.orchestration import study as S
 from agent_loop_sim.orchestration import views as V
 from agent_loop_sim.orchestration.scenarios import graph, session
 
@@ -56,6 +61,29 @@ def graph_session(name: str) -> dict:
 
 
 def run_chapter(chapter: str, cfg: dict) -> dict:
+    if chapter == "patterns":
+        d = cfg["default"]
+        task = S.task_of(d["k"], d["result_tokens"])
+        model = S.model_of(d["slope"])
+        plans = {n: P.plan(n, task, model) for n in P.PATTERNS}
+        return {"grid": S.patterns_grid(cfg["ks"], cfg["results"], cfg["slopes"]), "plans": plans,
+                "frames": {n: P.pattern_frames(plans[n]) for n in P.PATTERNS}, "task": P.TASK, "model": P.MODEL}
+    if chapter == "fanout":
+        fans = []
+        for it in cfg["itpm"]:
+            f = S.fan_study(cfg["chunks"], cfg["chunk_tokens"], cfg["widths"], cfg["rpm"], it, cfg["otpm"])
+            f.pop("plan")
+            fans.append(f)
+        return {"fans": fans, "plan": P.plan_map(cfg["chunks"], cfg["chunk_tokens"]), "session": graph_session("map_reduce")}
+    if chapter == "reliability":
+        return {"studies": [S.rel_study(cfg["e"], cfg["w"], c) for c in S.REL_CONFIGS], "rel": S.REL, "configs": S.REL_CONFIGS}
+    if chapter == "scale":
+        return {"sweep": S.scale_sweep(cfg["patterns"], cfg["rates"]),
+                "details": {n: S.scale_detail(n, cfg["detail_rate"]) for n in cfg["patterns"]},
+                "defaults": DES.DEFAULTS, "workflows": S.SCALE["workflows"], "seed": S.SCALE["seed"]}
+    if chapter == "choose":
+        return {"tables": {str(k): S.choose_table(k, r) for k, r in zip(cfg["k"], cfg["rates"])},
+                "workflows": S.CHOOSE["workflows"]}
     if chapter in ("graph", "reducers"):
         return {"sessions": {n: graph_session(n) for n in cfg["sessions"]}}
     if chapter == "checkpoints":

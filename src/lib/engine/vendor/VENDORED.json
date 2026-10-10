@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/BrendanJamesLynskey/Agent_Loop_Sim",
-  "commit": "bd1d21c3eb2ada073ed8232a4df0463dd61e4b00",
-  "committed": "2026-10-10T20:09:09+01:00",
+  "commit": "3240f2deb8d8ba7f2b4b65e3b4b1b149d3d30355",
+  "committed": "2026-10-10T21:04:03+01:00",
   "files": {
     "src/lib/engine/vendor/accounting.ts": {
       "from": "ts/src/accounting.ts",
@@ -69,7 +69,7 @@
     },
     "src/lib/engine/vendor/engine_data.json": {
       "from": "ts/src/engine_data.json",
-      "sha256": "af1fcdafde9915fa6a1052e85ce6298c0ef73522ab46ef0402d173dfd6d387e2"
+      "sha256": "f842ba62d214d720f17a9b996b16d1c7fa16f824415adfcad9a5091b2668ea73"
     },
     "src/lib/engine/vendor/harness.ts": {
       "from": "ts/src/harness.ts",
@@ -87,17 +87,33 @@
       "from": "ts/src/models.ts",
       "sha256": "8ef1efda555e6242e11db91dbaa55e8cef0c5476090527b6f048ec2f2b762424"
     },
+    "src/lib/engine/vendor/orchestration/des.ts": {
+      "from": "ts/src/orchestration/des.ts",
+      "sha256": "fe83a043e29336771ebc91bdce88fcf84d731b6571ba5c300c56c1f6102d63a2"
+    },
     "src/lib/engine/vendor/orchestration/durable.ts": {
       "from": "ts/src/orchestration/durable.ts",
       "sha256": "726718e5c5eb93b1b1b8d34d0ed2eb91dac7385dda57f4dfcda7dbc7d5b431c9"
     },
     "src/lib/engine/vendor/orchestration/graph.ts": {
       "from": "ts/src/orchestration/graph.ts",
-      "sha256": "ec211e1df226f41e23eaf500939e7f9abf6c5777443846e77f3b9abe6c405409"
+      "sha256": "0655b34799978740d8c4f6bf20ad7b7eb4219843f4fd57e4b9d68c105332be03"
     },
     "src/lib/engine/vendor/orchestration/index.ts": {
       "from": "ts/src/orchestration/index.ts",
-      "sha256": "59e2b8d1c57ee08e185a73797f87f2e584458af3ffef16ad1d8d7a0485f5502a"
+      "sha256": "7829d1f3396784aaecb0c34431dc1664896c3d8b761d2cae9c6fc566ad7276c9"
+    },
+    "src/lib/engine/vendor/orchestration/patterns.ts": {
+      "from": "ts/src/orchestration/patterns.ts",
+      "sha256": "b1c7269a0e77d22130ffd920891f7bb55623b94413bf173ac7b57b5043788baf"
+    },
+    "src/lib/engine/vendor/orchestration/reliability.ts": {
+      "from": "ts/src/orchestration/reliability.ts",
+      "sha256": "255d5d612f05418ce6493d2055dd10c92c03b3a1785d6fdce3a325662fda94c2"
+    },
+    "src/lib/engine/vendor/orchestration/study.ts": {
+      "from": "ts/src/orchestration/study.ts",
+      "sha256": "f7669c24edda9871adf89a40f34efa68ef5cddf9675909c43e34915f882aa254"
     },
     "src/lib/engine/vendor/orchestration/views.ts": {
       "from": "ts/src/orchestration/views.ts",
@@ -105,7 +121,7 @@
     },
     "src/lib/engine/vendor/orchestration_data.json": {
       "from": "ts/src/orchestration_data.json",
-      "sha256": "2274e9271d3250811cdc6e56f9ee89c2add82148f45755718a27f4f9502d4afb"
+      "sha256": "af66b60a1d8024ec38fe65910a88fef3d89ec2bba1f6a504ae2befd72e5b22fb"
     },
     "src/lib/engine/vendor/parse.ts": {
       "from": "ts/src/parse.ts",
@@ -153,7 +169,7 @@
     },
     "src/lib/engine/vendor/protocols_data.json": {
       "from": "ts/src/protocols_data.json",
-      "sha256": "87e409be3fa93627556d57d00221cc1ec41baf84014cc1346ed2bebbd7aeaa4f"
+      "sha256": "9ea5f47faa50599756f0f2abedcddd96bcc6ff291b480f3292c86839d4b995bd"
     },
     "src/lib/engine/vendor/rng.ts": {
       "from": "ts/src/rng.ts",
@@ -177,19 +193,27 @@
     },
     "tests/fixtures/orchestration_fixtures.json": {
       "from": "fixtures/orchestration_fixtures.json",
-      "sha256": "77b1bedea4543365ab9e2d1e20538bc50c8cf8cae4aabfac108941cc9b2df816"
+      "sha256": "9d9ce2e7fd7ea8bf578a529da3bf17a4cf755ef1a820fac6afa70a68765bc767"
     },
     "src/data/orchestration_results.md": {
       "from": "fixtures/orchestration_results.md",
-      "sha256": "fad1722c72013dea3d9a02fa4681da763f47a87d869fdd706528e4989b4d800b"
+      "sha256": "10c57aecd6cff5ad3137f7551b9e8fa82a190fa7ed2c67cf26a5426cbd819d0e"
     },
     "src/data/langgraph_recordings.json": {
       "from": "fixtures/langgraph_recordings.json",
-      "sha256": "2d9984daa3f1e181cc2efd34eaa8f5f1ec8897e7585d2d01e612a6a622c0ef92"
+      "sha256": "f3785fce90a5ade11fbbecb3976267378fc3401711b19e5f37470832ddf27a36"
     },
     "src/data/langgraph_graphs.py.txt": {
       "from": "conformance/langgraph_graphs.py",
-      "sha256": "f1d951b61c1da7ed8850e4550c12db256b5024bff3ef231f97c13d45e457e536"
+      "sha256": "e86ef728bfcb46149e486ba6e2a1e42cf89fed202b1b4bbb2af108cad90d44b2"
+    },
+    "tests/fixtures/orchestration2_fixtures.json": {
+      "from": "fixtures/orchestration2_fixtures.json",
+      "sha256": "d4f20e7f21b5dee3be7605b6741bc765fbad0e4afabba24976959646291c722a"
+    },
+    "src/data/orchestration2_results.md": {
+      "from": "fixtures/orchestration2_results.md",
+      "sha256": "0248b7a3c8e4f0e6bba40675d23056c19b0335a1c458424d5eaf50d76f46d503"
     }
   }
 }
