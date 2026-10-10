@@ -47,7 +47,11 @@ export default function HomePage(): JSX.Element {
             </a>
             &apos;s execution model apart, super-step by super-step, and then
             durable execution: replaying a workflow&apos;s history after a crash
-            without paying for its side effects twice.
+            without paying for its side effects twice. Then it scales up:
+            multi-agent patterns compared on one task, fan-out against a rate
+            limit, reliability with retries and verifiers, hundreds of workflows
+            sharing one endpoint, and a pattern chosen from the simulation
+            rather than from opinion.
           </p>
           <p className="mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
             The animations are driven by{" "}
@@ -59,7 +63,7 @@ export default function HomePage(): JSX.Element {
             {v("conformance.langgraph", "raw")} in CI:{" "}
             {v("conformance.sessions", "int")} sessions,{" "}
             {v("conformance.ops", "int")} operations (runs, crashes, resumes,
-            interrupts, edits, time travel) and{" "}
+            interrupts, edits, time travel, <code>Send</code> fan-outs) and{" "}
             {v("conformance.checkpoints", "int")} checkpoints, every one equal.
             No language model runs anywhere.
           </p>

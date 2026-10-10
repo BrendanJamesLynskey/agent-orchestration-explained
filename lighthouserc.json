@@ -9,7 +9,12 @@
         "http://localhost:3000/learn/01-from-a-chain-to-a-graph",
         "http://localhost:3000/learn/02-state-channels-and-reducers",
         "http://localhost:3000/learn/03-checkpoints-and-interrupts",
-        "http://localhost:3000/learn/04-durable-execution"
+        "http://localhost:3000/learn/04-durable-execution",
+        "http://localhost:3000/learn/05-multi-agent-patterns",
+        "http://localhost:3000/learn/06-fan-out-and-map-reduce",
+        "http://localhost:3000/learn/07-reliability",
+        "http://localhost:3000/learn/08-running-at-scale",
+        "http://localhost:3000/learn/09-choosing-a-pattern"
       ],
       "numberOfRuns": 3
     },

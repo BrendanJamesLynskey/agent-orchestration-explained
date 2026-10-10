@@ -267,7 +267,7 @@ function Chooser({
         </text>
       </svg>
       <div className="min-w-0 text-xs" data-testid="choose-table">
-        <div className="grid grid-cols-[minmax(0,1.7fr)_repeat(4,minmax(0,1fr))] gap-x-1 gap-y-1 text-[11px] sm:gap-x-2 sm:text-xs">
+        <div className="grid grid-cols-[minmax(0,1.7fr)_repeat(4,minmax(0,1fr))] gap-1 text-[11px] sm:gap-x-2 sm:text-xs">
           {["pattern", "success", "p95", "$/success", "capacity"].map(
             (h, i) => {
               const key = [

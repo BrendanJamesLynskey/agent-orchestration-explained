@@ -17,7 +17,7 @@ import { Segmented, Stat } from "@/components/ui/Controls";
 import { useSvgFont } from "@/components/viz/useSvgFont";
 import { O, type Obj } from "@/lib/engine";
 import { fmtMs, fmtUsd, pct } from "@/lib/format";
-import { finishedBy, histogram, nearestRank } from "@/lib/orch/des";
+import { durShort, finishedBy, histogram, nearestRank } from "@/lib/orch/des";
 import {
   BRANCH_COLOUR,
   MUTED,
@@ -115,7 +115,7 @@ function Scale({
   const X0 = tf * 2.4;
   const Y0 = tf + 4;
   const PW = TW - X0 - 8;
-  const PH = 120;
+  const PH = tfont.narrow ? 230 : 120;
   const TH = Y0 + PH + tf + 8;
   const horizon = series[series.length - 1]!.t as number;
   const yMax = Math.max(
@@ -234,8 +234,7 @@ function Scale({
           style={{ fontSize: tf }}
           className="fill-neutral-600 dark:fill-neutral-400"
         >
-          {LABEL[pattern]} at {rate}/min: queue (shaded), in flight (blue), in
-          system (black)
+          {LABEL[pattern]} at {rate} a minute
         </text>
         <text
           x={X0 + PW}
@@ -426,6 +425,24 @@ function Scale({
         </svg>
       </div>
       <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-700 dark:text-neutral-300">
+        <li className="flex items-center gap-1">
+          <span
+            className="inline-block size-3"
+            style={{ background: OKABE_ITO.vermillion, opacity: 0.4 }}
+          />
+          calls queued
+        </li>
+        <li className="flex items-center gap-1">
+          <span
+            className="inline-block h-0.5 w-4"
+            style={{ background: STATE_COLOUR.active }}
+          />
+          calls in flight
+        </li>
+        <li className="flex items-center gap-1">
+          <span className="inline-block h-0.5 w-4 bg-black dark:bg-neutral-200" />
+          workflows in the system
+        </li>
         {sweep.map((x, j) => (
           <li key={x.pattern} className="flex items-center gap-1">
             <span
@@ -474,7 +491,7 @@ function Scale({
           />
           <Stat
             label="p50 / p95 / p99"
-            value={`${fmtMs(detail.p50)} / ${fmtMs(detail.p95)} / ${fmtMs(detail.p99)}`}
+            value={`${durShort(detail.p50)} / ${durShort(detail.p95)} / ${durShort(detail.p99)}`}
           />
           <Stat
             label="Cost per success"

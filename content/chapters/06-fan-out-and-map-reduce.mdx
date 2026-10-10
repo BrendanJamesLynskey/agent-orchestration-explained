@@ -1,6 +1,6 @@
 <FanoutWidget>
   <Eq
-    label="The speed-up with N calls at once is the time one at a time over the time with N; it is at most Amdahl's bound, one over the serial fraction plus the parallel fraction over N, and at most the time one at a time over the time the token bucket needs to admit everything beyond its capacity"
+    label="S of N, the gain with N calls at once, is the time one at a time over the time with N; it is at most Amdahl's bound, one over the serial fraction plus the parallel fraction over N, and at most the time one at a time over the time the token bucket needs to admit everything beyond its capacity"
     tex="\begin{gathered} S(N) = \frac{T_1}{T_N} \le \frac{1}{(1-\htmlClass{hl-amdahl}{f}) + \htmlClass{hl-amdahl}{f}/N} \\ S(N) \le \frac{T_1}{\htmlClass{hl-ceiling}{T_{\text{bucket}}}}, \quad \htmlClass{hl-ceiling}{T_{\text{bucket}}} = \frac{\textstyle\sum_i n_i - B}{r} \end{gathered}"
   />
 </FanoutWidget>

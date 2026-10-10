@@ -240,7 +240,7 @@ function Patterns({
         ))}
       </svg>
       <div
-        className="grid grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))] gap-x-1 gap-y-1 text-[11px] sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))] sm:gap-x-2 sm:text-xs"
+        className="grid grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))] gap-1 text-[11px] sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))] sm:gap-x-2 sm:text-xs"
         data-testid="compare"
       >
         <span className="font-medium text-neutral-600 dark:text-neutral-400">
@@ -326,7 +326,10 @@ function Patterns({
           <Choice
             label="Pattern"
             value={pattern}
-            options={P.PATTERNS.map((p2) => ({
+            options={[
+              "supervisor",
+              ...P.PATTERNS.filter((x) => x !== "supervisor"),
+            ].map((p2) => ({
               value: p2,
               label: P.TITLES[p2]!,
             }))}

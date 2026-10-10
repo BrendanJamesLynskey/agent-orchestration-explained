@@ -8,6 +8,7 @@ import { expect, test, type Locator } from "@playwright/test";
 import fx from "../fixtures/site_fixtures.json";
 
 import type { Obj } from "@/lib/engine";
+import { fmtMs, fmtUsd, pct } from "@/lib/format";
 
 import { ENGINE_TIMEOUT } from "./pages";
 
@@ -54,6 +55,9 @@ const P1 = "/learn/01-from-a-chain-to-a-graph";
 const P2 = "/learn/02-state-channels-and-reducers";
 const P3 = "/learn/03-checkpoints-and-interrupts";
 const P4 = "/learn/04-durable-execution";
+const P5 = "/learn/05-multi-agent-patterns";
+const timed = (frames: Obj[]) =>
+  frames.map((f) => `${fmtMs(f.t)}: ${f.caption}`);
 
 const CASES: Case[] = [
   {
@@ -112,6 +116,25 @@ const CASES: Case[] = [
     captions: caps(CH.durable.runs["crash_in_ship|nokey|clock"].frames),
     choose: radio("crash in shipping", "reads the clock"),
   },
+  {
+    path: P5,
+    id: "patterns-widget",
+    name: "supervisor",
+    captions: timed(CH.patterns.frames.supervisor),
+  },
+  {
+    path: P5,
+    id: "patterns-widget",
+    name: "map-reduce",
+    captions: timed(CH.patterns.frames.map_reduce),
+    choose: async (fig) => {
+      await change(fig, async () => {
+        await fig
+          .getByLabel("Pattern", { exact: true })
+          .selectOption("map_reduce");
+      });
+    },
+  },
 ];
 
 for (const c of CASES) {
@@ -129,5 +152,74 @@ for (const c of CASES) {
     );
     for (const i of keySteps(c.captions.length))
       await frame(fig, i, c.captions[i]!);
+  });
+}
+
+// Chapters 6–9 compose their captions from the engine's numbers: at the last frame each quotes them.
+const ENDS: { path: string; id: string; want: () => string[] }[] = [
+  {
+    path: "/learn/06-fan-out-and-map-reduce",
+    id: "fanout-widget",
+    want: () => {
+      const f = (CH.fanout.fans as Obj[])[0]!;
+      const r = (f.rows as Obj[]).find((x) => x.width === 8)!;
+      return [
+        `finished in ${fmtMs(r.ms)}, ${(r.speedup as number).toFixed(2)}×`,
+      ];
+    },
+  },
+  {
+    path: "/learn/07-reliability",
+    id: "reliability-widget",
+    want: () => {
+      const st = (CH.reliability.studies as Obj[]).find(
+        (x) => x.name === "retry",
+      )!;
+      const ok = (st.grid.kept as Obj[]).filter(
+        (x) => x.status === "ok",
+      ).length;
+      return [
+        `${ok} of ${(st.grid.kept as Obj[]).length} runs are correct`,
+        pct(st.grid.closed.success, 1),
+      ];
+    },
+  },
+  {
+    path: "/learn/08-running-at-scale",
+    id: "scale-widget",
+    want: () => {
+      const d = CH.scale.details.supervisor as Obj;
+      return [`p95 ${fmtMs(d.p95)}, ${fmtUsd(d.cost_per_success)} per success`];
+    },
+  },
+  {
+    path: "/learn/09-choosing-a-pattern",
+    id: "chooser-widget",
+    want: () => {
+      const r = (CH.choose.tables["16"] as Obj[]).find(
+        (x) => x.pattern === "map_reduce",
+      )!;
+      return [
+        `Pick: Map-reduce`,
+        pct(r.success, 1),
+        fmtUsd(r.cost_per_success),
+      ];
+    },
+  },
+];
+
+for (const c of ENDS) {
+  test(`${c.id}: the last frame's caption quotes the reference's numbers`, async ({
+    page,
+  }) => {
+    await page.goto(c.path);
+    const fig = page.getByTestId(c.id);
+    await expect(fig).toBeVisible({ timeout: ENGINE_TIMEOUT });
+    await fig.scrollIntoViewIfNeeded();
+    const max = await fig.getByTestId("scrub").getAttribute("max");
+    await fig.getByTestId("scrub").fill(max!);
+    await expect(fig).toHaveAttribute("data-step", max!);
+    for (const w of c.want())
+      await expect(fig.getByTestId("caption")).toContainText(w);
   });
 }

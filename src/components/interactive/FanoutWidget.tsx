@@ -213,7 +213,7 @@ function Fanout({
         viewBox={`0 0 ${CW} ${CH}`}
         className="h-auto w-full"
         role="img"
-        aria-label="Speed-up against width: measured, Amdahl's law and the rate-limit bound."
+        aria-label="How much faster each width runs: measured, Amdahl's law and the rate-limit bound."
         data-testid="speedup"
       >
         <line x1={CX0} x2={CX0} y1={CY0} y2={CY0 + CPH} stroke={MUTED.light} />
