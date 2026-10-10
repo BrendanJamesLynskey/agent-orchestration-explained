@@ -15,7 +15,7 @@ import { Choice, Segmented, Stat } from "@/components/ui/Controls";
 import { useSvgFont } from "@/components/viz/useSvgFont";
 import { O, type Obj } from "@/lib/engine";
 import { fmtInt, fmtMs, fmtUsd, pct } from "@/lib/format";
-import { agentLabel, ticks } from "@/lib/orch/des";
+import { SHORT, agentLabel, ticks } from "@/lib/orch/des";
 import { MUTED, OKABE_ITO, STATE_COLOUR } from "@/lib/viz/palette";
 
 import { EngineStatus } from "../agent/EngineStatus";
@@ -94,8 +94,11 @@ function Patterns({
   // layout: label column, timeline, context bars
   const fsz = font.fs(10);
   const lane = Math.max(20, fsz + 9);
-  const LX = font.narrow ? 92 : 120;
-  const CX = W - (font.narrow ? 70 : 96);
+  const maxLabel = Math.max(
+    ...(plan.agents as string[]).map((a) => agentLabel(a, font.narrow).length),
+  );
+  const LX = Math.max(40, maxLabel * fsz * 0.6 + 8);
+  const CX = W - (font.narrow ? 60 : 96);
   const TX = LX + 4;
   const TW = CX - TX - 10;
   const top = fsz + 8;
@@ -140,7 +143,7 @@ function Patterns({
           data-focus={focus === "ctx" ? "true" : "false"}
           className="fill-neutral-600 dark:fill-neutral-400"
         >
-          context
+          {font.narrow ? "ctx" : "context"}
         </text>
         {agents.map((a, i) => {
           const y = top + i * lane;
@@ -237,14 +240,14 @@ function Patterns({
         ))}
       </svg>
       <div
-        className="grid grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))] gap-x-2 gap-y-1 text-xs"
+        className="grid grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))] gap-x-1 gap-y-1 text-[11px] sm:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))] sm:gap-x-2 sm:text-xs"
         data-testid="compare"
       >
         <span className="font-medium text-neutral-600 dark:text-neutral-400">
           pattern
         </span>
         <span
-          className="font-medium text-neutral-600 dark:text-neutral-400"
+          className="hidden font-medium text-neutral-600 sm:block dark:text-neutral-400"
           data-focus={focus === "calls" ? "true" : "false"}
         >
           calls
@@ -270,7 +273,7 @@ function Patterns({
               on={on}
               best={r.success === best}
               cells={[
-                P.TITLES[r.pattern] ?? r.pattern,
+                SHORT[r.pattern] ?? r.pattern,
                 String(r.model_calls),
                 fmtUsd(r.cost),
                 fmtMs(r.latency_ms),
@@ -370,7 +373,7 @@ function Row({
       {cells.map((c, i) => (
         <span
           key={i}
-          className={cls}
+          className={i === 1 ? `${cls} hidden sm:block` : cls}
           data-best={i === 4 && best ? "true" : undefined}
           style={
             i === 4

@@ -72,7 +72,7 @@ function Fanout({
 
   // the Gantt: one thin row per call (split, the chunks, reduce)
   const fsz = font.fs(10);
-  const LX = font.narrow ? 70 : 84;
+  const LX = Math.max(40, 9 * fsz * 0.6 + 6);
   const TX = LX + 6;
   const TW = W - TX - 8;
   const rowH = 7;

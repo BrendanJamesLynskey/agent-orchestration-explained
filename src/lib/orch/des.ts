@@ -6,12 +6,19 @@
  */
 import type { Obj } from "@/lib/engine";
 
+const NARROW: Record<string, string> = {
+  supervisor: "sup",
+  researcher: "res",
+  reducer: "reduce",
+  planner: "plan",
+};
+
 /** A short lane label for an agent: "worker:pricing" → "w·pricing", "worker:topic 12" → "w12". */
 export function agentLabel(name: string, narrow = false): string {
   const [kind, rest] = name.includes(":")
     ? [name.slice(0, name.indexOf(":")), name.slice(name.indexOf(":") + 1)]
     : [name, ""];
-  if (!rest) return name;
+  if (!rest) return narrow ? (NARROW[name] ?? name) : name;
   const short: Record<string, string> = {
     worker: "w",
     specialist: "s",
@@ -31,7 +38,7 @@ export function tickStep(max: number, n = 5): number {
   if (!(max > 0)) return 1;
   const raw = max / n;
   const p = Math.pow(10, Math.floor(Math.log10(raw)));
-  for (const m of [1, 2, 5, 10]) if (m * p >= raw) return m * p;
+  for (const m of [1, 2, 5]) if (m * p >= raw) return m * p;
   return 10 * p;
 }
 
@@ -190,4 +197,22 @@ export function stepSummary(kept: Obj[], k: number): Record<string, number> {
     if (last !== "ok" && last !== "wrong") out.gave_up! += 1;
   }
   return out;
+}
+
+/** Short pattern names for narrow tables and chart labels. */
+export const SHORT: Record<string, string> = {
+  single: "single",
+  supervisor: "supervisor",
+  hierarchical: "hierarch.",
+  swarm: "swarm",
+  debate: "debate",
+  map_reduce: "map-reduce",
+};
+
+/** A compact duration: "51.7 s", "3.2 min", "60.8 h". */
+export function durShort(ms: number): string {
+  const s = ms / 1000;
+  if (s < 60) return `${s.toFixed(1)} s`;
+  if (s < 3600) return `${(s / 60).toFixed(1)} min`;
+  return `${(s / 3600).toFixed(1)} h`;
 }

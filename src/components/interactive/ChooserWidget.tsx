@@ -17,7 +17,7 @@ import { Segmented, Stat } from "@/components/ui/Controls";
 import { useSvgFont } from "@/components/viz/useSvgFont";
 import { O, type Obj } from "@/lib/engine";
 import { fmtMs, fmtUsd, pct } from "@/lib/format";
-import { chooseFrames } from "@/lib/orch/des";
+import { SHORT, chooseFrames, durShort } from "@/lib/orch/des";
 import { MUTED, OKABE_ITO, STATE_COLOUR } from "@/lib/viz/palette";
 
 import { EngineStatus } from "../agent/EngineStatus";
@@ -143,6 +143,20 @@ function Chooser({
     X0 + (PW * (Math.log10(Math.max(1e-3, c)) - lmin)) / (lmax - lmin);
   const yv = (p: number) => Y0 + PH - PH * p;
 
+  // labels: place each beside its point, nudged down while it would overlap one already placed
+  const placed: { x: number; y: number }[] = [];
+  const labelY: Record<string, number> = {};
+  for (const r of [...table].sort((a, b) => b.success - a.success)) {
+    const cx = xv(r.cost_per_success);
+    let y = yv(r.success) - 5;
+    while (
+      placed.some((q) => Math.abs(q.y - y) < fs && Math.abs(q.x - cx) < fs * 6)
+    )
+      y += fs;
+    placed.push({ x: cx, y });
+    labelY[r.pattern] = y;
+  }
+
   const visual = (
     <div className="grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
       <svg
@@ -228,7 +242,7 @@ function Chooser({
               />
               <text
                 x={cx + 7 > W - 70 ? cx - 7 : cx + 7}
-                y={cy - 5}
+                y={labelY[r.pattern]}
                 textAnchor={cx + 7 > W - 70 ? "end" : "start"}
                 style={{ fontSize: fs }}
                 className={
@@ -237,7 +251,7 @@ function Chooser({
                     : "fill-neutral-800 dark:fill-neutral-200"
                 }
               >
-                {(titles[r.pattern] ?? r.pattern).replace(" (hand-offs)", "")}
+                {SHORT[r.pattern] ?? r.pattern}
               </text>
             </g>
           );
@@ -253,7 +267,7 @@ function Chooser({
         </text>
       </svg>
       <div className="min-w-0 text-xs" data-testid="choose-table">
-        <div className="grid grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))] gap-x-2 gap-y-1">
+        <div className="grid grid-cols-[minmax(0,1.7fr)_repeat(4,minmax(0,1fr))] gap-x-1 gap-y-1 text-[11px] sm:gap-x-2 sm:text-xs">
           {["pattern", "success", "p95", "$/success", "capacity"].map(
             (h, i) => {
               const key = [
@@ -294,13 +308,13 @@ function Chooser({
               >
                 <span className={cls} style={style}>
                   {pick ? "★ " : ""}
-                  {(titles[r.pattern] ?? r.pattern).replace(" (hand-offs)", "")}
+                  {SHORT[r.pattern] ?? r.pattern}
                 </span>
                 <span className={cls} style={style}>
                   {pct(r.success, 1)}
                 </span>
                 <span className={cls} style={style}>
-                  {fmtMs(r.p95)}
+                  {durShort(r.p95)}
                 </span>
                 <span className={cls} style={style}>
                   {fmtUsd(r.cost_per_success)}

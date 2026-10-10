@@ -160,7 +160,9 @@ function Scale({
     return kxi(rateVals.length - 1);
   };
   const ky = (v: number) =>
-    KY0 + KPH - (KPH * (Math.log10(v) - lmin)) / (lmax - lmin || 1);
+    KY0 +
+    KPH -
+    (KPH * (Math.log10(v) - (lmin - 0.08))) / (lmax + 0.04 - (lmin - 0.08));
 
   const visual = (
     <div className="space-y-3">
