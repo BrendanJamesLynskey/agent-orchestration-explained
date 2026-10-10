@@ -39,3 +39,23 @@ export const DurableWidget = dynamic(() => import("./DurableWidget"), {
   ssr: false,
   loading: loading("animation"),
 });
+export const PatternsWidget = dynamic(() => import("./PatternsWidget"), {
+  ssr: false,
+  loading: loading("animation"),
+});
+export const FanoutWidget = dynamic(() => import("./FanoutWidget"), {
+  ssr: false,
+  loading: loading("animation"),
+});
+export const ReliabilityWidget = dynamic(() => import("./ReliabilityWidget"), {
+  ssr: false,
+  loading: loading("animation"),
+});
+export const ScaleWidget = dynamic(() => import("./ScaleWidget"), {
+  ssr: false,
+  loading: loading("animation"),
+});
+export const ChooserWidget = dynamic(() => import("./ChooserWidget"), {
+  ssr: false,
+  loading: loading("animation"),
+});

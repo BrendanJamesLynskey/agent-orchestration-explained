@@ -195,7 +195,13 @@ describe("palette", () => {
 
 describe("chapters and site", () => {
   it("catalogue", async () => {
-    expect(SECTIONS).toHaveLength(4);
+    expect(SECTIONS).toHaveLength(9);
+    expect(getSectionMeta("09-choosing-a-pattern").title).toBe(
+      "Choosing a pattern",
+    );
+    expect(await readSectionMdx("06-fan-out-and-map-reduce")).toMatch(
+      /^<FanoutWidget>/,
+    );
     expect(isValidSlug("02-state-channels-and-reducers")).toBe(true);
     expect(isValidSlug("99-nope")).toBe(false);
     expect(getSectionMeta("04-durable-execution").title).toBe(

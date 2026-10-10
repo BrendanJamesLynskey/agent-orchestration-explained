@@ -1,0 +1,62 @@
+<PatternsWidget>
+  <Eq
+    label="A pattern's cost is the sum over its model calls of the uncached input tokens at the input price, the cached tokens at the cache price and the output tokens at the output price; its probability of success is the product of its critical calls' accuracies; its latency is the longest path through its calls"
+    tex="\begin{gathered} \text{cost} = \htmlClass{hl-calls}{\textstyle\sum_{i}} \big[(\htmlClass{hl-ctx}{n_i} - c_i)\,\pi_{\text{in}} + c_i\,\pi_{\text{cache}} + o_i\,\pi_{\text{out}}\big] \\ P(\text{success}) = \htmlClass{hl-calls}{\textstyle\prod_{i}} \htmlClass{hl-p}{p_i}, \quad \htmlClass{hl-p}{p_i} = p_0 - \beta\,(\htmlClass{hl-ctx}{n_i} - 4\text{K})^{+} \\ T = \text{longest path through the calls} \end{gathered}"
+  />
+</PatternsWidget>
+
+<Layer kind="concept">
+
+A multi-agent system is a graph whose nodes are model calls with their own prompts, tools and contexts. The patterns differ in **who talks to whom** and therefore in **who reads what**: every agent pays, on every call, for every token in its own context. The animation lays one pattern's calls on a timeline, one lane per agent, with nothing queueing yet (that is chapter 8); the table under it runs all six on the same task: compare <V of="patterns.task.subtasks.length" fmt="int" /> vendors, each needing a search and a short sub-answer, then a recommendation.
+
+- **Single agent.** One context, one loop: search, read, search, read … answer. The fewest calls (<V of="pat.4|700|10.single.model_calls" fmt="int" />), the cheapest (<V of="pat.4|700|10.single.cost" fmt="usd" />), and because each prompt extends the last, most of its input is a **cached prefix** (<V of="pat.4|700|10.single.cached" fmt="int" /> of <V of="pat.4|700|10.single.input" fmt="int" /> tokens). Its weakness is that context grows with every tool result.
+- **Supervisor.** A supervisor delegates each sub-question to a worker that starts from a fresh, short context and returns only its answer. <V of="pat.4|700|10.supervisor.model_calls" fmt="int" /> calls, one at a time, so it is slow (<V of="pat.4|700|10.supervisor.latency_ms" fmt="dur" />).
+- **Hierarchical.** A supervisor of team leads, each a supervisor of workers: the top never sees a worker's messages, only a lead's summary. More calls again (<V of="pat.4|700|10.hierarchical.model_calls" fmt="int" />), in return for bounded contexts at every level.
+- **Swarm.** Specialists **hand off** to each other directly, with no supervisor: fewer calls (<V of="pat.4|700|10.swarm.model_calls" fmt="int" />), but the message history is shared, so each specialist reads everything said so far under its own system prompt.
+- **Debate.** One researcher gathers the evidence; three debaters answer, read each other's answers and answer again; a judge takes the majority (after Du et al., [_Improving Factuality and Reasoning in Language Models through Multiagent Debate_](https://arxiv.org/abs/2305.14325)). It buys reliability by voting: <V of="pat.4|700|10.debate.success" fmt="pct1" /> against the supervisor's <V of="pat.4|700|10.supervisor.success" fmt="pct1" />, at <V of="pat.4|700|10.debate.cost" fmt="usd" />.
+- **Map-reduce.** A planner sends every sub-question to a worker at once (LangGraph's `Send`, chapter 6) and a reducer writes the answer: the supervisor's isolation without its serial chain, <V of="pat.4|700|10.map_reduce.latency_ms" fmt="dur" /> instead of <V of="pat.4|700|10.supervisor.latency_ms" fmt="dur" />.
+
+On this small task the single agent wins outright: <V of="pat.4|700|10.single.success" fmt="pct1" /> success for <V of="pat.4|700|10.single.cost" fmt="usd" />. Every extra call is one more thing that can go wrong, and splitting work that fits in one context only adds calls. Grow the task and it turns: with 16 sub-questions and 1,500-token results, the single agent's prompts pass <V of="pat.16|1500|10.single.input" fmt="int" /> tokens in total and its success falls to <V of="pat.16|1500|10.single.success" fmt="pct1" />, while map-reduce keeps every worker's context short and holds <V of="pat.16|1500|10.map_reduce.success" fmt="pct1" /> in <V of="pat.16|1500|10.map_reduce.latency_ms" fmt="dur" />. The swarm, whose shared history grows fastest, collapses (<V of="pat.16|1500|10.swarm.success" fmt="pct1" />, <V of="pat.16|1500|10.swarm.cost" fmt="usd" />). Set the accuracy penalty to "none" and the reason shows: with accuracy independent of context length, the single agent's <V of="pat.16|1500|0.single.success" fmt="pct1" /> is the best of the six again, because splitting only multiplies the number of calls. **Which pattern wins depends on how fast accuracy falls with context, and that is a property of your model and task to measure, not to assume.**
+
+</Layer>
+
+<Callout kind="illustrative">
+
+The task, every token size (system prompt 900, tool result 700 or 1,500, sub-answer 250, hand-off 150) and the accuracy model are invented: a call is right with probability 0.98 up to 4,000 prompt tokens, losing the chosen amount per 1,000 tokens beyond, and 0.995 for a routing decision; the debaters' first round is paid for but not credited. Prices are the engine's dated list prices for Claude Sonnet 4.6, latency the engine's hosted profile (400 ms overhead, 5,000 prompt tokens/s, 80 output tokens/s). The structure of each pattern (who calls whom, who reads what) follows LangGraph's multi-agent documentation; the numbers do not describe any real system.
+
+</Callout>
+
+<Layer kind="maths">
+
+Call $i$ reads $n_i$ prompt tokens, of which $c_i$ are a cached prefix (the agent's previous prompt, when at least 1,024 tokens), and writes $o_i$. Cost and success follow the equation. For a chain of $k$ sub-questions, the single agent's prompt before call $j$ holds about $S + j\,(r + o)$ tokens (system prompt, then a result and a tool call per step), so its total input grows as $k^2$; a supervisor's workers each read about $S + h + r$, constant in $k$, while the supervisor itself grows only by the sub-answers. That is the trade: the single agent pays quadratically in tokens but makes $k + 1$ calls; a supervisor pays linearly in tokens but makes $3k + 1$ calls, and $P = \prod p_i$ punishes every one of them. Debate replaces a product with a vote: for three independent debaters with accuracies $q_1, q_2, q_3$, the majority is right with probability $q_1 q_2 + q_1 q_3 + q_2 q_3 - 2\,q_1 q_2 q_3$, which exceeds each $q$ when they are above one half.
+
+Latency is the longest path through the calls (each call's time to first token plus its output at the decode rate, tool calls included): sequential patterns take the sum of their calls, map-reduce the planner plus the slowest worker plus the reducer.
+
+</Layer>
+
+<Layer kind="code">
+
+The success rule and the cache rule, cut from the vendored engine (`patterns.ts`):
+
+```ts
+for (const c of p.calls as Obj[]) {
+  if (c.role === "critical") out = out * c.p;
+  else if (c.role === "vote") (groups[c.group] ??= []).push(c.p);
+}
+for (const g of Object.values(groups)) out = out * maj3(g[0]!, g[1]!, g[2]!);
+```
+
+```ts
+return call.prefix >= price.min_tokens && call.prefix > 0 ? call.prefix : 0;
+```
+
+</Layer>
+
+<Callout kind="deeper">
+
+- Introduction to LangGraph: [multi-agent patterns](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/9) (supervisor, swarm, scatter-gather).
+- [Interview LangGraph: multi-agent architectures](https://github.com/BrendanJamesLynskey/Interview_LangGraph/blob/main/04_advanced_patterns/multi_agent.md) (supervisor, swarm, hierarchical teams, hand-off tools), the [Agents hub](https://brendanjameslynskey.github.io/LLM_Hub_Agents/) and the [multi-agent workflows guide](https://github.com/BrendanJamesLynskey/MultiAgent_Workflows_guide).
+- LangChain's [multi-agent](https://docs.langchain.com/oss/python/langchain/multi-agent) page, [langgraph-supervisor](https://github.com/langchain-ai/langgraph-supervisor-py) and [langgraph-swarm](https://github.com/langchain-ai/langgraph-swarm-py); Anthropic's [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) (start simple; orchestrator-workers).
+- [Agent Context Explained](https://agent-context-explained.vercel.app) for what fills a context window, and [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app) for sub-agents inside one harness.
+
+</Callout>

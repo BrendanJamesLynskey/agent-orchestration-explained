@@ -191,6 +191,45 @@
 .eq-panel .hl-replay {
   border-color: #56b4e9;
 }
+.eq-panel .hl-calls {
+  border-color: #0072b2;
+}
+.eq-panel .hl-ctx {
+  border-color: #56b4e9;
+}
+.eq-panel .hl-p {
+  border-color: #009e73;
+}
+.eq-panel .hl-amdahl {
+  border-color: #009e73;
+}
+.eq-panel .hl-ceiling {
+  border-color: #d55e00;
+}
+.eq-panel .hl-n {
+  border-color: #0072b2;
+}
+.eq-panel .hl-a {
+  border-color: #e69f00;
+}
+.eq-panel .hl-d {
+  border-color: #009e73;
+}
+.eq-panel .hl-rho {
+  border-color: #d55e00;
+}
+.eq-panel .hl-little {
+  border-color: #737373;
+}
+.eq-panel .hl-tail {
+  border-color: #cc79a7;
+}
+.eq-panel .hl-feas {
+  border-color: #0072b2;
+}
+.eq-panel .hl-pick {
+  border-color: #e69f00;
+}
 .eq-panel[data-hl~="step"] .hl-step,
 .eq-panel[data-hl~="max"] .hl-max,
 .eq-panel[data-hl~="ckpt"] .hl-ckpt,
@@ -202,7 +241,20 @@
 .eq-panel[data-hl~="dup"] .hl-dup,
 .eq-panel[data-hl~="attempts"] .hl-attempts,
 .eq-panel[data-hl~="key"] .hl-key,
-.eq-panel[data-hl~="replay"] .hl-replay {
+.eq-panel[data-hl~="replay"] .hl-replay,
+.eq-panel[data-hl~="calls"] .hl-calls,
+.eq-panel[data-hl~="ctx"] .hl-ctx,
+.eq-panel[data-hl~="p"] .hl-p,
+.eq-panel[data-hl~="amdahl"] .hl-amdahl,
+.eq-panel[data-hl~="ceiling"] .hl-ceiling,
+.eq-panel[data-hl~="n"] .hl-n,
+.eq-panel[data-hl~="a"] .hl-a,
+.eq-panel[data-hl~="d"] .hl-d,
+.eq-panel[data-hl~="rho"] .hl-rho,
+.eq-panel[data-hl~="little"] .hl-little,
+.eq-panel[data-hl~="tail"] .hl-tail,
+.eq-panel[data-hl~="feas"] .hl-feas,
+.eq-panel[data-hl~="pick"] .hl-pick {
   background-color: rgb(0 114 178 / 0.18);
 }
 

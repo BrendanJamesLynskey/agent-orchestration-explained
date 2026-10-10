@@ -1,0 +1,68 @@
+<ReliabilityWidget>
+  <Eq
+    label="The probability that a workflow of n steps succeeds is the probability a step ends correct, raised to the n; a step ends correct with probability a times the sum of r to the j for j below A, where r is the chance an attempt is retried and a the chance it is correct and accepted"
+    tex="\begin{gathered} P(\text{success}) = \big(a\,S_{\htmlClass{hl-a}{A}}\big)^{\htmlClass{hl-n}{n}}, \quad S_{\htmlClass{hl-a}{A}} = \frac{1 - r^{\htmlClass{hl-a}{A}}}{1 - r} \\ r = e + c\,f + w\,\htmlClass{hl-d}{d}, \quad a = c\,(1 - f) \end{gathered}"
+  />
+</ReliabilityWidget>
+
+<Layer kind="concept">
+
+Every step of a workflow can go wrong, and the failures multiply. If each step is right with probability $p$, a chain of $n$ steps is right with probability $p^n$: at 92% a step (5% visible errors, 3% silent ones), ten steps succeed <V of="rel.none.10.closed" fmt="pct1" /> of the time and thirty steps <V of="rel.none.30.closed" fmt="pct1" />. The animation runs 48 seeded workflows of ten steps, one step at a time; the chart beside it puts the closed form (lines) against 2,000 simulated runs at each length (dots, with 95% intervals).
+
+Two kinds of failure need two different fixes:
+
+- A **visible** error (an exception, a malformed tool call, a timeout) can be **retried**. With three attempts a step fails only if all three do, and ten steps succeed <V of="rel.retry.10.closed" fmt="pct1" /> of the time (simulated: <V of="rel.retry.10.rate" fmt="pct1" />). Retries cost little: <V of="rel.retry.10.attempts" fmt="f2" /> attempts per ten-step run on average.
+- A **silent** error (a plausible wrong answer) passes straight through retries, because nothing signals it. Only a **verifier** catches it: a second check (a test suite, a schema, a second model) that rejects a wrong result with probability $d$ (here <V of="reliability.rel.verifier.recall" fmt="pct" />) and, its own cost, a right one with probability $f$ (<V of="reliability.rel.verifier.false_reject" fmt="pct" />). A rejection is retried like an error. With both, ten steps succeed <V of="rel.verify.10.closed" fmt="pct1" /> of the time (simulated: <V of="rel.verify.10.rate" fmt="pct1" />) and thirty <V of="rel.verify.30.closed" fmt="pct1" />, against <V of="rel.retry.30.closed" fmt="pct1" /> with retries alone.
+
+The design rule that falls out: make failures **visible** wherever you can (validate outputs, run the tests, check the schema), because a visible failure costs one retry and a silent one costs the whole run. Retries are only as good as the error signal behind them.
+
+</Layer>
+
+<Callout kind="illustrative">
+
+The error rates ($e$ = 0.05, $w$ = 0.03 by default), the verifier (recall 0.8, 5% false rejections) and the steps' independence are illustrative assumptions, not measurements of any model; real errors are often correlated (the same model makes the same mistake again), which makes retries worth less than these numbers. The closed forms are exact under the assumptions, and the simulation is a seeded Monte Carlo of the same assumptions, so their agreement tests the arithmetic, not the assumptions.
+
+</Callout>
+
+<Layer kind="maths">
+
+One attempt at a step is a visible error with probability $e$, silently wrong with probability $w$, correct with $c = 1 - e - w$. With a verifier of recall $d$ and false-rejection rate $f$ (both zero without one) an attempt is retried with probability $r = e + c f + w d$, accepted correct with $a = c(1-f)$, accepted wrong with $b = w(1-d)$. With $A$ attempts, attempt $j+1$ happens only if the first $j$ were all retried, so the step is correct with probability $a\,(1 + r + \dots + r^{A-1}) = a\,S_A$, silently wrong with $b\,S_A$, and gives up with $r^A$; it takes $S_A$ attempts on average. A run of $n$ steps succeeds if every step is correct, $(a S_A)^n$; it stops early when a step gives up, so its expected attempts are $S_A \sum_{i<n} (1 - r^A)^i$.
+
+At the defaults with three attempts and no verifier: $r = 0.05$, $S_3 = 1.0525$, $a = 0.92$, so a step is right with probability $0.968$ and ten steps with $0.968^{10} \approx 0.725$. The 95% intervals are Wilson score intervals; the engine's tests require every simulated rate to be within four standard errors of its closed form, for twelve configurations of 6,000 runs each.
+
+</Layer>
+
+<Layer kind="code">
+
+One attempt, cut from the vendored engine's simulation (`reliability.ts`):
+
+```ts
+const u = r.random();
+if (u < e) {
+  log.push("error");
+  continue;
+}
+const right = u >= e + w;
+if (verifier) {
+  const v = r.random();
+  if (right && v < verifier.false_reject) {
+    log.push("rejected_ok");
+    continue;
+  }
+  if (!right && v < verifier.recall) {
+    log.push("caught");
+    continue;
+  }
+}
+```
+
+</Layer>
+
+<Callout kind="deeper">
+
+- [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app) for retries, malformed-call feedback and loop detection inside one agent's loop.
+- [Interview LangGraph: multi-agent failure modes](https://github.com/BrendanJamesLynskey/Interview_LangGraph/blob/main/04_advanced_patterns/multi_agent.md) and a reviewer agent that vetoes another's output; Introduction to LangGraph: [human-in-the-loop](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/8).
+- Chapter 4's durable execution: a retry of a side effect needs an idempotency key, or the retry that fixes reliability breaks correctness.
+- LangGraph nodes take a `retry_policy`; see the [Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api).
+
+</Callout>

@@ -1,0 +1,61 @@
+<ChooserWidget>
+  <Eq
+    label="Pick the pattern with the highest success among those that meet every constraint: success at least s star, p95 latency at most t star, cost per success at most c star, and capacity at least the arrival rate needed"
+    tex="\begin{gathered} \htmlClass{hl-pick}{\text{pick}} = \arg\max_{x \,\in\, \htmlClass{hl-feas}{F}} \text{success}(x) \\ \htmlClass{hl-feas}{F} = \{x : \text{success} \ge s^{*},\ p_{95} \le t^{*}, \\ \text{cost per success} \le c^{*},\ \mu \ge \lambda^{*}\} \end{gathered}"
+  />
+</ChooserWidget>
+
+<Layer kind="concept">
+
+Advice about agent architectures is plentiful and mostly unfalsifiable. A simulation turns it into a table you can argue with. Every pattern of chapter 5 is run through chapter 8's discrete-event simulation on the same task and load (<V of="choose.workflows" fmt="int" /> workflows each, with the rate limits, failures and retries of chapter 8), and each row records what you would measure in production: the share of workflows that succeed (with its 95% interval), the p95 latency, the cost per **successful** task, and the capacity the rate limits allow. Choose your constraints; the animation applies them one at a time, strikes out the patterns that miss each, and picks the most reliable survivor, the cheaper one on a tie.
+
+What the two tasks say:
+
+- **Four sub-questions** (arriving <V of="choose.rates.0" fmt="num" /> a minute): the single agent is the answer to almost every question you can ask. It succeeds <V of="pick.4.single.success" fmt="pct1" /> of the time, has the lowest p95 (<V of="pick.4.single.p95" fmt="dur" />), the lowest cost per success (<V of="pick.4.single.cost_per_success" fmt="usd" />) and the most headroom (<V of="pick.4.single.capacity" fmt="f2" /> workflows a minute). Debate is a little more reliable (<V of="pick.4.debate.success" fmt="pct1" />), so "success at least 80%" with no other constraint picks it, but at this load it is near its capacity (<V of="pick.4.debate.capacity" fmt="f2" />) and its p95 is <V of="pick.4.debate.p95" fmt="dur" />. Add any latency constraint and the single agent is back.
+- **Sixteen sub-questions** (<V of="choose.rates.1" fmt="num" /> a minute): nothing reaches 80%, so the first lesson is that the task needs a better model or a verifier (chapter 7), not a cleverer topology. Ask for 40% within three minutes and only map-reduce is left: <V of="pick.16.map_reduce.success" fmt="pct1" />, p95 <V of="pick.16.map_reduce.p95" fmt="dur" />, <V of="pick.16.map_reduce.cost_per_success" fmt="usd" /> per success. The supervisor is about as reliable (<V of="pick.16.supervisor.success" fmt="pct1" />) but slower (<V of="pick.16.supervisor.p95" fmt="dur" />); the single agent, starved by its own context, succeeds <V of="pick.16.single.success" fmt="pct1" /> of the time; the swarm, whose shared history outgrows the input limit, can barely run at all (<V of="pick.16.swarm.capacity" fmt="f2" /> workflows a minute).
+
+Three rules come out of the runs rather than from opinion:
+
+1. **Start with one agent**, and split only when its context grows past what the model handles well. The split pays when it shortens contexts; it costs when it only adds calls.
+2. **Parallelise to cut latency.** Map-reduce costs about what a supervisor does (it drops the routing calls, but its reducer reads every answer at once) and is several times faster (<V of="pat.16|1500|10.map_reduce.latency_ms" fmt="dur" /> against <V of="pat.16|1500|10.supervisor.latency_ms" fmt="dur" /> uncontended on the large task), until the rate limit binds (chapter 6).
+3. **Check capacity before latency.** A pattern within its latency budget at one workflow a minute can be hours behind at four, and the binding limit is usually tokens, not concurrency (chapter 8).
+
+</Layer>
+
+<Callout kind="illustrative">
+
+Every number in the table comes from the engine's simulation under the assumptions of chapters 5 and 8 (an invented task, an illustrative accuracy model that falls 0.01 per 1,000 prompt tokens past 4,000, small workspace-style rate limits, 3% transient failures). The method carries over; the numbers do not. Measure your own task's accuracy against context length, your own limits and your own failure rates, and the same simulation will rank the patterns for you.
+
+</Callout>
+
+<Layer kind="maths">
+
+Each row is one seeded run of the simulation. Success is a binomial proportion over <V of="choose.workflows" fmt="int" /> workflows, shown with its 95% Wilson interval; the closed form of chapter 5 multiplied by the chance that every call gets through its retries, $\prod_i (1 - f^{A})$ with $f$ = <V of="scale.defaults.fail" fmt="num" /> and $A$ = <V of="scale.defaults.max_attempts" fmt="int" />, agrees with it (the map-reduce row: <V of="pick.16.map_reduce.closed_success" fmt="pct1" /> closed form, <V of="pick.16.map_reduce.success" fmt="pct1" /> simulated). Cost per success is the total cost of all workflows, failed ones included, divided by the successes, so an unreliable pattern pays for its failures. Capacity is $\mu$ of chapter 8.
+
+The choice is a constrained maximisation: filter by the constraints, then maximise success, breaking ties by cost. With noisy estimates, two patterns whose intervals overlap are not distinguishable, and the honest answer is "either, and measure".
+
+</Layer>
+
+<Layer kind="code">
+
+The chooser, cut from the vendored engine (`study.ts`):
+
+```ts
+for (const r of table) {
+  if (!alive.includes(r.pattern)) continue;
+  const v = r[c.key];
+  const good = c.op === ">=" ? v >= lim : v <= lim;
+  (good ? keep : out).push(r.pattern);
+}
+```
+
+</Layer>
+
+<Callout kind="deeper">
+
+- Anthropic's [Building effective agents](https://www.anthropic.com/engineering/building-effective-agents): "consider adding complexity only when it demonstrably improves outcomes".
+- Introduction to LangGraph: [strengths and trade-offs](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/13); [Interview LangGraph: supervisor against a single ReAct agent](https://github.com/BrendanJamesLynskey/Interview_LangGraph/blob/main/04_advanced_patterns/multi_agent.md); the [Agents hub](https://brendanjameslynskey.github.io/LLM_Hub_Agents/).
+- [Raschka's coding agent in LangGraph](https://github.com/BrendanJamesLynskey/Raschka_Coding_Agent_LangGraph): a single agent that works.
+- The companion sites on [harnesses](https://agent-harnesses-explained.vercel.app), [protocols](https://agent-protocols-explained.vercel.app) and [context](https://agent-context-explained.vercel.app), and on the model side [Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app).
+
+</Callout>

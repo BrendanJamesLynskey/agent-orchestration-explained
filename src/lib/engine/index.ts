@@ -89,9 +89,7 @@ export function runChapter(chapter: Chapter): Obj {
   if (chapter === "reliability") {
     const S = O.study;
     return {
-      studies: (S.REL_CONFIGS as Obj[]).map((c) =>
-        S.relStudy(cfg.e, cfg.w, c),
-      ),
+      studies: (S.REL_CONFIGS as Obj[]).map((c) => S.relStudy(cfg.e, cfg.w, c)),
       rel: S.REL,
       configs: S.REL_CONFIGS,
     };
@@ -105,6 +103,8 @@ export function runChapter(chapter: Chapter): Obj {
       sweep: S.scaleSweep(cfg.patterns, cfg.rates),
       details,
       defaults: O.des.DEFAULTS,
+      rates: cfg.rates,
+      detail_rate: cfg.detail_rate,
       workflows: S.SCALE.workflows,
       seed: S.SCALE.seed,
     };
@@ -114,7 +114,7 @@ export function runChapter(chapter: Chapter): Obj {
     (cfg.k as number[]).forEach((k, i) => {
       tables[String(k)] = O.study.chooseTable(k, cfg.rates[i]);
     });
-    return { tables, workflows: O.study.CHOOSE.workflows };
+    return { tables, rates: cfg.rates, workflows: O.study.CHOOSE.workflows };
   }
   if (chapter === "graph" || chapter === "reducers") {
     const out: Obj = {};

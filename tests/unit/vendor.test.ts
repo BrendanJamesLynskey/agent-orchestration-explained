@@ -36,6 +36,8 @@ describe("vendored engine", () => {
       "fixtures/orchestration_results.md",
       "fixtures/langgraph_recordings.json",
       "conformance/langgraph_graphs.py",
+      "fixtures/orchestration2_fixtures.json",
+      "fixtures/orchestration2_results.md",
     ])
       expect(froms).toContain(f);
   });
@@ -48,7 +50,7 @@ describe("vendored engine", () => {
         "utf8",
       ),
     ) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-    expect(fx.engine).toBe("1.6.0");
+    expect(fx.engine).toBe("1.7.0");
     for (const s of fx.sessions)
       expect(O.runSession(O.graph(s.graph), O.session(s.name).ops).ops).toEqual(
         s.ops,
@@ -57,6 +59,36 @@ describe("vendored engine", () => {
       expect(O.runDurable(O.durableScenario(n).params)).toEqual(r);
     for (const s of fx.sweeps.slice(0, 4))
       expect(O.chargeSweep(s.q, s.attempts, s.runs, s.seed)).toEqual(s);
+  });
+
+  it("the engine's part-2 fixtures (patterns, DES, reliability) are reproduced by the vendored port", async () => {
+    const { O } = await import("@/lib/engine");
+    const fx = JSON.parse(
+      readFileSync(
+        join(ROOT, "tests/fixtures/orchestration2_fixtures.json"),
+        "utf8",
+      ),
+    ) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    expect(fx.engine).toBe("1.7.0");
+    for (const n of O.patterns.PATTERNS) {
+      expect(O.patterns.plan(n)).toEqual(fx.plans[n]);
+      expect(O.patterns.patternFrames(O.patterns.plan(n))).toEqual(
+        fx.frames[n],
+      );
+      expect(
+        O.des.simulate(O.patterns.plan(n), {
+          workflows: 5,
+          per_min: 4.0,
+          trace: true,
+          samples: 20,
+          seed: 5,
+        }),
+      ).toEqual(fx.small[n]);
+    }
+    expect(O.patterns.compare()).toEqual(fx.compare);
+    expect(
+      O.study.relStudy(O.study.REL.e, O.study.REL.w, O.study.REL_CONFIGS[2]!),
+    ).toEqual(fx.rel[2]);
   });
 
   it("the vendored port equals the committed LangGraph recording", async () => {

@@ -13,7 +13,7 @@ import {
   type Chapter,
   type Obj,
 } from "@/lib/engine";
-import { fmtInt, pct, trim } from "@/lib/format";
+import { fmtInt, fmtMs, fmtUsd, pct, trim } from "@/lib/format";
 
 export type Fmt =
   | "int"
@@ -24,6 +24,9 @@ export type Fmt =
   | "f4"
   | "raw"
   | "ms"
+  | "dur"
+  | "usd"
+  | "pct1"
   | "val";
 
 let TREE: Obj | null = null;
@@ -92,6 +95,53 @@ export function tree(): Obj {
       effects: eff,
     };
   }
+  // chapters 5–9: the studies keyed for prose
+  t.pat = {};
+  for (const g of t.patterns.grid as Obj[]) {
+    const row: Obj = {};
+    for (const r of g.rows as Obj[]) row[r.pattern] = r;
+    t.pat[`${g.k}|${g.result_tokens}|${Math.round(g.slope * 1000)}`] = row;
+  }
+  t.fan = {};
+  for (const f of t.fanout.fans as Obj[]) {
+    const w: Obj = {};
+    for (const r of f.rows as Obj[]) w[String(r.width)] = r;
+    t.fan[String(f.itpm)] = {
+      t1: f.t1,
+      bound_ms: f.bound_ms,
+      parallel_fraction: f.parallel_fraction,
+      tin: f.ceiling.tin,
+      req: f.ceiling.req,
+      tout: f.ceiling.tout,
+      w,
+    };
+  }
+  t.rel = {};
+  for (const st of t.reliability.studies as Obj[]) {
+    const byN: Obj = {};
+    for (const c of st.curve as Obj[]) byN[String(c.n)] = c;
+    t.rel[st.name] = byN;
+  }
+  t.load = {};
+  for (const x of t.scale.sweep as Obj[]) {
+    const cap = x.capacity as Obj;
+    const byRate: Obj = {
+      capacity: cap,
+      calls: (t.scale.defaults.rpm as number) / cap.requests,
+      uncached_in: (t.scale.defaults.itpm as number) / cap.input,
+    };
+    (x.rows as Obj[]).forEach((r, i) => {
+      const rate = (t.scale.rates as number[])[i]!;
+      byRate[String(rate)] = { ...r, rho: rate / cap.min };
+    });
+    t.load[x.pattern] = byRate;
+  }
+  t.pick = {};
+  for (const [k, rows] of Object.entries(t.choose.tables as Obj)) {
+    const byP: Obj = {};
+    for (const r of rows as Obj[]) byP[r.pattern] = r;
+    t.pick[k] = byP;
+  }
   TREE = t;
   return t;
 }
@@ -134,5 +184,11 @@ export function formatValue(v: unknown, fmt: Fmt): string {
       return n.toFixed(4);
     case "ms":
       return `${fmtInt(n)} ms`;
+    case "dur":
+      return fmtMs(n);
+    case "usd":
+      return fmtUsd(n);
+    case "pct1":
+      return pct(n, 1);
   }
 }

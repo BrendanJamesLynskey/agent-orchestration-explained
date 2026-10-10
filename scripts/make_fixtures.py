@@ -80,10 +80,11 @@ def run_chapter(chapter: str, cfg: dict) -> dict:
     if chapter == "scale":
         return {"sweep": S.scale_sweep(cfg["patterns"], cfg["rates"]),
                 "details": {n: S.scale_detail(n, cfg["detail_rate"]) for n in cfg["patterns"]},
-                "defaults": DES.DEFAULTS, "workflows": S.SCALE["workflows"], "seed": S.SCALE["seed"]}
+                "defaults": DES.DEFAULTS, "rates": cfg["rates"], "detail_rate": cfg["detail_rate"],
+                "workflows": S.SCALE["workflows"], "seed": S.SCALE["seed"]}
     if chapter == "choose":
         return {"tables": {str(k): S.choose_table(k, r) for k, r in zip(cfg["k"], cfg["rates"])},
-                "workflows": S.CHOOSE["workflows"]}
+                "rates": cfg["rates"], "workflows": S.CHOOSE["workflows"]}
     if chapter in ("graph", "reducers"):
         return {"sessions": {n: graph_session(n) for n in cfg["sessions"]}}
     if chapter == "checkpoints":
