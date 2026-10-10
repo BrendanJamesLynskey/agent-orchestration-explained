@@ -1,0 +1,63 @@
+<CheckpointWidget>
+  <Eq
+    label="Resuming from checkpoint k applies the pending writes of the tasks that finished plus the results of re-running only the rest; time travel copies a checkpoint into a new branch"
+    tex="\begin{gathered} v_{k+1} = \text{apply}\big(v_k,\ \htmlClass{hl-pending}{P_k} \cup \text{run}(A_k \setminus \text{done}(\htmlClass{hl-pending}{P_k}))\big) \\ \htmlClass{hl-fork}{\text{fork}(c_j)} = (v_j,\ A_j,\ \text{parent} = c_j) \quad \htmlClass{hl-ckpt}{c_k} = (v_k, A_k, P_k) \end{gathered}"
+  />
+</CheckpointWidget>
+
+<Layer kind="concept">
+
+With a **checkpointer**, LangGraph saves a **checkpoint** after every super-step: the state, the nodes due to run next, and, as tasks finish, their writes. A thread's checkpoints form a history you can list, resume and branch. The animation plays five sessions on the engine's runtime; each is also one of the conformance sessions run in real LangGraph.
+
+- **A crash, then resume.** `load` fans out to `enrich` and `score`; the worker running `enrich` dies. No checkpoint is written for that step, but `score` had finished, and its writes are kept on the last checkpoint as **pending writes**. `invoke(None)` resumes: only `enrich` runs again. The side-effects list shows the price: `enrich` called its API twice (<V of="timeline_summary.crash.effects" fmt="int" /> effects in all for <V of="timeline_summary.crash.runs" fmt="int" /> node runs).
+- **A human interrupt.** The `ask` node calls `interrupt(…)` with the draft; the run pauses and returns the question. Its sibling `check` finished, and is kept. When the human answers with `Command(resume="yes")`, `ask` runs **again from its first line**, so the notification it sent before the interrupt goes out twice. LangGraph's documentation says exactly this: the node restarts from the beginning, and code before `interrupt` should be idempotent.
+- **A static interrupt and an edit.** Compiled with `interrupt_before=["execute"]`, the run stops before a risky step. A person corrects the plan with `update_state(…, as_node="planner")`, which writes a new `update` checkpoint as if `planner` had written the change, and the run continues from it (resuming never stops at the same static interrupt twice).
+- **Time travel.** `update_state` on an earlier checkpoint starts a **branch**: the old run stays in the history, and the new one runs `calculator` instead of `search`. **Replaying** an earlier checkpoint (`invoke(None, config)` with its `checkpoint_id`) copies it to a `fork` checkpoint and runs the nodes after it again: LangGraph's time-travel page says replay "re-executes nodes", it does not read them from a cache.
+
+</Layer>
+
+<Callout kind="illustrative">
+
+The graphs and their side effects (an API call, a notification, an email, a `git push`) are invented. Every checkpoint, its step and source (`input`, `loop`, `update`, `fork`), its parent, its state, its next tasks and each task's result, error or interrupt are what LangGraph <V of="conformance.langgraph" fmt="raw" /> with an in-memory checkpointer records for the same session, compared after every operation in the engine's CI.
+
+</Callout>
+
+<Layer kind="maths">
+
+A checkpoint is $c_k = (v_k, A_k, P_k)$: the state after step $k$, the tasks due next and the pending writes of those that have finished. A step either completes, giving $c_{k+1}$, or stops on a failure or an interrupt, leaving $c_k$ with more pending writes. Resuming runs only $A_k \setminus \mathrm{done}(P_k)$ and applies the union, as in the equation; so a step whose tasks have side effects pays them once per attempt of each unfinished task, and an interrupted node pays everything before its `interrupt` call once per resume.
+
+The history is a tree. `update_state` on $c_j$ adds a child $c'$ with step $j+1$ whose state is $v_j$ with the edit applied through the reducers; replaying $c_j$ adds $\mathrm{fork}(c_j)$ and runs from it. The thread's "latest" checkpoint is the newest one, wherever it hangs, so the next `invoke(None)` continues the newest branch: in the fork session, <V of="timeline_summary.fork.checkpoints" fmt="int" /> checkpoints over <V of="timeline_summary.fork.ops" fmt="int" /> operations.
+
+</Layer>
+
+<Layer kind="code">
+
+Resuming: a task whose result is already on the checkpoint is not run again; time travel copies the checkpoint into a fork (cut from the vendored engine, `graph.ts`):
+
+```ts
+if (first && reuse && rec.result !== null) {
+  writes.push([t, clone(rec.result)]);
+  continue;
+}
+```
+
+```ts
+else cur = this.put(base.id, base.step + 1, "fork", base.values, base.next, base.barriers, base.ready);
+```
+
+The interrupt in the real LangGraph node the conformance check builds (`conformance/langgraph_graphs.py`):
+
+```python
+out[op["key"]] = interrupt(op["payload"])
+```
+
+</Layer>
+
+<Callout kind="deeper">
+
+- Introduction to LangGraph: [persistence and checkpointing](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/7) and [human-in-the-loop](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/8).
+- [Interview LangGraph: checkpointers and memory](https://github.com/BrendanJamesLynskey/Interview_LangGraph/blob/main/02_state_and_persistence/checkpointers_and_memory.md) and [streaming and human-in-the-loop](https://github.com/BrendanJamesLynskey/Interview_LangGraph/blob/main/04_advanced_patterns/streaming_and_hitl.md).
+- LangGraph's [persistence](https://docs.langchain.com/oss/python/langgraph/persistence), [interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts) and [time travel](https://docs.langchain.com/oss/python/langgraph/use-time-travel) pages.
+- [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app) on permission prompts, the harness-level cousin of an interrupt.
+
+</Callout>

@@ -1,0 +1,65 @@
+<GraphWidget>
+  <Eq
+    label="The graph's time is the sum over super-steps of the slowest node in each step plus one checkpoint write; one node at a time it is the sum over every node run of its time plus a checkpoint write"
+    tex="\begin{gathered} T_{\text{graph}} = \htmlClass{hl-step}{\sum_{s}} \Big( \htmlClass{hl-max}{\max_{v \in A_s} t_v} + \htmlClass{hl-ckpt}{c} \Big) \\ T_{\text{one at a time}} = \sum_{v} \big( t_v + \htmlClass{hl-ckpt}{c} \big) \end{gathered}"
+  />
+</GraphWidget>
+
+<Layer kind="concept">
+
+A **chain** calls one step after another: retrieve, draft, review. That is enough until a step has to loop (call a tool, look at the result, decide again), run beside another step, wait for a person, or survive a crash. An **agent orchestrator** such as [LangGraph](https://github.com/langchain-ai/langgraph) describes the work as a **graph** instead: **nodes** are functions of a shared **state**, **edges** say what runs next, and a **conditional edge** (a router) picks the next node from the state, which is how an agent loops until it is done.
+
+The graph runs in **super-steps**, the bulk-synchronous model of Google's Pregel (Malewicz et al., SIGMOD 2010). In each super-step, every node that an edge triggered runs, and they all read the **same snapshot** of the state. None of them sees another's writes: the writes wait at a **barrier** until the last node of the step finishes, then they are applied to the state (chapter 2 shows how), a **checkpoint** is saved (chapter 3), and the edges out of the nodes that ran decide the next step's nodes. When no edge triggers anything, the run is done.
+
+The animation plays this on four small graphs. Pick **fan-out**: a planner triggers two researchers, which run in the same super-step; a **join** edge (the bar at its arrow head) waits for both before `compose` runs. The step lasts as long as its slowest node, so the fan-out takes <V of="graph.sessions.fanout.supersteps.graph_ms" fmt="ms" /> in <V of="graph.sessions.fanout.supersteps.steps" fmt="int" /> super-steps against <V of="graph.sessions.fanout.supersteps.sequential_ms" fmt="ms" /> one node at a time, a speed-up of <V of="derived.fanout.speedup" fmt="f2" />×. The **agent loop** (a model node and a tools node, with a router that loops back until three turns are done) gains nothing from the graph's parallelism, <V of="derived.react_loop.speedup" fmt="f2" />×: what it gains is the loop itself, and the checkpoints and interrupts of the next two chapters. **Loop + join** puts a fan-out inside a loop: the join waits afresh in each round.
+
+Every frame comes from the engine's runtime, which runs the same graphs in real LangGraph <V of="conformance.langgraph" fmt="raw" /> in its CI and requires the same state after every super-step: <V of="conformance.sessions" fmt="int" /> sessions, <V of="conformance.ops" fmt="int" /> operations, <V of="conformance.checkpoints" fmt="int" /> checkpoints, all equal (the [data page](/data) has the details).
+
+</Layer>
+
+<Callout kind="illustrative">
+
+The node durations and the <V of="consts.ckpt_ms" fmt="ms" /> checkpoint write are illustrative, chosen to make the steps visible; real nodes that call a model take seconds and vary. What the graphs do, which nodes run in which super-step, what each sees and what state results, is not illustrative: it is what LangGraph <V of="conformance.langgraph" fmt="raw" /> does with the same graph.
+
+</Callout>
+
+<Layer kind="maths">
+
+Let $A_s$ be the set of nodes that run in super-step $s$ and $t_v$ the time node $v$ takes. Because a step ends at its barrier, the graph's time is the sum over steps of the slowest node, plus a checkpoint write $c$ per step, as in the equation above. Running the same node runs one at a time costs $\sum_v (t_v + c)$, so the speed-up is at most the width of the widest step, and only when the parallel nodes take equal time; a step with one slow node and one fast one wastes the fast node's slack. This is the barrier's price for a simple, reproducible model: every node in a step sees the same state, whatever order the nodes finish in.
+
+The next nodes are decided by the edges alone: node $u$ runs in step $s+1$ if an edge from a node in $A_s$ reaches it, or a join edge into it has now heard from every one of its sources. A node reached by two plain edges in different steps runs twice (the engine's `no_join` session shows it, as LangGraph does); a join edge makes it wait for both.
+
+</Layer>
+
+<Layer kind="code">
+
+The barrier's order and the next step's nodes, cut from the vendored engine (`graph.ts`). Writes are sorted by node name before the reducers see them, and the next step is every node whose trigger fired, in the order the nodes were added to the graph:
+
+```ts
+writes.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+```
+
+```ts
+const ready = decl(this.spec).filter((n) => trig.has(n));
+```
+
+The same graph built in real LangGraph by the conformance check (`conformance/langgraph_graphs.py`), edge by edge:
+
+```python
+if "router" in e:
+    g.add_conditional_edges(src, router_fn(e["router"]), [END if t == "__end__" else t for t in e["targets"]])
+else:
+    g.add_edge(src, END if e["to"] == "__end__" else e["to"])
+```
+
+</Layer>
+
+<Callout kind="deeper">
+
+- Introduction to LangGraph: [edges and the Pregel execution model](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/5) and [the state as shared memory](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/3).
+- [Interview LangGraph: graph basics](https://github.com/BrendanJamesLynskey/Interview_LangGraph/blob/main/01_fundamentals/graph_basics.md), and the [Agents hub](https://brendanjameslynskey.github.io/LLM_Hub_Agents/).
+- [Raschka's coding agent in LangGraph](https://github.com/BrendanJamesLynskey/Raschka_Coding_Agent_LangGraph): the agent loop of this chapter as a working program.
+- [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app) for what goes on inside one model-and-tools turn.
+- LangGraph's own [Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api) and [Pregel](https://docs.langchain.com/oss/python/langgraph/pregel) pages.
+
+</Callout>

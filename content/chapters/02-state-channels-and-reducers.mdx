@@ -1,0 +1,66 @@
+<ReducerWidget>
+  <Eq
+    label="After super-step s, each key's new value is the reducer applied to the snapshot's value and each write in turn, the writes ordered by node name"
+    tex="\begin{gathered} v_{s+1}[k] = \htmlClass{hl-reduce}{r_k}\big(\cdots \htmlClass{hl-reduce}{r_k}(\htmlClass{hl-snap}{v_s[k]},\, \htmlClass{hl-order}{w_{(1)}}), \ldots, \htmlClass{hl-order}{w_{(m)}}\big) \\ \htmlClass{hl-order}{w_{(1)}}, \ldots, \htmlClass{hl-order}{w_{(m)}}: \text{the step's writes to } k \text{, by node name} \end{gathered}"
+  />
+</ReducerWidget>
+
+<Layer kind="concept">
+
+The state is a set of **channels**, one per key, and each channel has a **reducer**: the rule that turns the current value and a write into the new value. A key declared without one keeps the last value written, and accepts **one write per super-step**. A key declared `Annotated[list, operator.add]` appends; any two-argument function will do, such as `max`.
+
+Parallel nodes are where this matters. The animation runs a planner and then two branches, `fast` (<V of="reducers.sessions.merge_add.graph.nodes.1.ms" fmt="ms" />) and `careful` (<V of="reducers.sessions.merge_add.graph.nodes.2.ms" fmt="ms" />), that both write the key `answer` in the same super-step. Neither sees the other's write; both writes meet at the barrier.
+
+- **No reducer**: two writes to one key in one step is an error, LangGraph's `InvalidUpdateError` ("Can receive only one value per step"). The step saves no checkpoint; the last good one stays the thread's latest.
+- **Add**: both writes are kept, `answer` = <V of="reducers.sessions.merge_add.supersteps.frames.11.values.answer" fmt="val" />. Note the order: `careful` finishes last but its write comes first, because LangGraph applies a step's writes in task order (for plain nodes, sorted by node name), not in the order they finish. The result does not depend on timing, so a run replays the same way.
+- **Max**: a custom reducer keeps the larger answer, <V of="reducers.sessions.merge_max.supersteps.frames.11.values.answer" fmt="int" />.
+
+The fourth graph is about what a node can see. Node `p` has a conditional edge whose router goes to `r` only if `x` = 7, and its sibling `q` sets `x` = 7 in the same step. The router runs with the snapshot plus **its own node's** writes, not its sibling's, so it sees no `x` and the run ends without `r`, although the state after the step does hold `x` = <V of="reducers.sessions.router_view.supersteps.frames.5.values.x" fmt="int" />.
+
+</Layer>
+
+<Callout kind="illustrative">
+
+The node durations are illustrative; the ordering, the error and what the router sees are LangGraph's, checked by the engine's conformance sessions (`merge_overwrite`, `merge_add`, `merge_max`, `router_view`, recorded with langgraph <V of="conformance.langgraph" fmt="raw" />). Sorting by node name is what this LangGraph version does for the plain nodes here (observed in the recordings, and in its source, which sorts tasks by their path); dynamic tasks created with `Send` are outside this chapter.
+
+</Callout>
+
+<Layer kind="maths">
+
+Let $W_s(k) = (w_{(1)}, \ldots, w_{(m)})$ be the writes to key $k$ in super-step $s$, sorted by the writing node's name. The new value is the left fold in the equation above. With $r_k(a, b) = b$ and $m > 1$ the step fails. With list concatenation the result keeps every write in that order; with an associative and commutative reducer such as $\max$ or integer $+$ the order does not matter at all, which is the property to aim for when parallel branches write one key.
+
+A router on node $u$ evaluates on $v_s \oplus w_u$, the snapshot with only $u$'s own writes applied through the reducers. So a routing decision can depend on what $u$ just wrote, but never on a sibling in the same step: if it must, put the router after a join.
+
+</Layer>
+
+<Layer kind="code">
+
+The reducers at the barrier, and the router's view, cut from the vendored engine (`graph.ts`):
+
+```ts
+if (chan.reducer === "overwrite" && seen[k]! > 1)
+  throw new InvalidUpdateError(`At key '${k}': Can receive only one value per step.`);
+out[k] = reduceValue(chan, out[k], k in out, v);
+```
+
+```ts
+const own = applyWrites(this.spec, values, [[name, upd]]);
+for (const t of route(e.router, own)) {
+```
+
+How the conformance check declares the same channels in real LangGraph (`conformance/langgraph_graphs.py`):
+
+```python
+fields[s["key"]] = Annotated[t, operator.add]
+```
+
+</Layer>
+
+<Callout kind="deeper">
+
+- Introduction to LangGraph: [state, reducers and update semantics](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/3).
+- [Interview LangGraph: channels and reducers](https://github.com/BrendanJamesLynskey/Interview_LangGraph/blob/main/02_state_and_persistence/channels_and_reducers.md), including the `InvalidUpdateError` question.
+- LangGraph's [Graph API: state and reducers](https://docs.langchain.com/oss/python/langgraph/graph-api) and its [INVALID_CONCURRENT_GRAPH_UPDATE](https://docs.langchain.com/oss/python/langgraph/errors/INVALID_CONCURRENT_GRAPH_UPDATE) error page.
+- [Agent Context Explained](https://agent-context-explained.vercel.app) for what goes into a state key that holds messages.
+
+</Callout>

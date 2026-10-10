@@ -1,0 +1,195 @@
+{
+  "repository": "https://github.com/BrendanJamesLynskey/Agent_Loop_Sim",
+  "commit": "bd1d21c3eb2ada073ed8232a4df0463dd61e4b00",
+  "committed": "2026-10-10T20:09:09+01:00",
+  "files": {
+    "src/lib/engine/vendor/accounting.ts": {
+      "from": "ts/src/accounting.ts",
+      "sha256": "8c9718072f4256292d8636c0d5dd6e7183361dda5b79d714257eb3a13e321a02"
+    },
+    "src/lib/engine/vendor/chat.ts": {
+      "from": "ts/src/chat.ts",
+      "sha256": "be6b7d5f4b63d80d431f08714c11d62470d9f42a23c599bec032e224f801ee3e"
+    },
+    "src/lib/engine/vendor/context/chunking.ts": {
+      "from": "ts/src/context/chunking.ts",
+      "sha256": "bbfa03c60b66096c371010f286f7a14adc2f36c4aec480c0aa3d2be76c2b2ab3"
+    },
+    "src/lib/engine/vendor/context/corpus.ts": {
+      "from": "ts/src/context/corpus.ts",
+      "sha256": "4c0c074226db10d6f826043d86b5dcdb89a4da601f29c9057aecc23e067c1dbb"
+    },
+    "src/lib/engine/vendor/context/evaluate.ts": {
+      "from": "ts/src/context/evaluate.ts",
+      "sha256": "b12a7bbf7a699c0aae7c46c877433fe3d752e343d7cfdb912702328d62bb1c3f"
+    },
+    "src/lib/engine/vendor/context/index.ts": {
+      "from": "ts/src/context/index.ts",
+      "sha256": "50b6cadeab0eb1475ad4d09c3df5969acd1e7fd3517ee1ba96bf76b4eb99fe64"
+    },
+    "src/lib/engine/vendor/context/mathx.ts": {
+      "from": "ts/src/context/mathx.ts",
+      "sha256": "84204053b7c358de09cb8ca2292245e66b16f28f3be46846953fde4a7f3b0b62"
+    },
+    "src/lib/engine/vendor/context/memory.ts": {
+      "from": "ts/src/context/memory.ts",
+      "sha256": "48caf526c1f124d74630f33029fd2ca887d97363045426e2cd076b27147a223e"
+    },
+    "src/lib/engine/vendor/context/packing.ts": {
+      "from": "ts/src/context/packing.ts",
+      "sha256": "df7f688ddfa0835d342b1013e1d5bae82584fa3b1abb98508b0ef2bf01817d7b"
+    },
+    "src/lib/engine/vendor/context/retrieval.ts": {
+      "from": "ts/src/context/retrieval.ts",
+      "sha256": "4393d1fccef8baa592080bd8d58a95f2dea82f40a539f4a283aab3b62ccf83a1"
+    },
+    "src/lib/engine/vendor/context/text.ts": {
+      "from": "ts/src/context/text.ts",
+      "sha256": "ead45ab60535f0d17738c52cfb3bb5a1ce15839228a0a615d99813043d1cf8e7"
+    },
+    "src/lib/engine/vendor/context/tradeoff.ts": {
+      "from": "ts/src/context/tradeoff.ts",
+      "sha256": "4ec0d3732364ad1b19ead95fdc1105e0bae6b4aec5701ed659d990021af4f30c"
+    },
+    "src/lib/engine/vendor/context/vectors.ts": {
+      "from": "ts/src/context/vectors.ts",
+      "sha256": "d4eee4f3139c96b98f6013037ef56de9e5c931d1ecf97834e93f879835425c0c"
+    },
+    "src/lib/engine/vendor/context/views.ts": {
+      "from": "ts/src/context/views.ts",
+      "sha256": "5b1712318df551ced772ae1d2811ce42acc8ba0ae746ee6715e3c34b0497bbb7"
+    },
+    "src/lib/engine/vendor/context/window.ts": {
+      "from": "ts/src/context/window.ts",
+      "sha256": "73511454559c94ab4b81b34bb41e63dd797987bc59a82e9a739c475845e602e8"
+    },
+    "src/lib/engine/vendor/data.ts": {
+      "from": "ts/src/data.ts",
+      "sha256": "65f43d25809dc3c7538b79021af154245b2c2e00a88ecda3b775423436cb75b4"
+    },
+    "src/lib/engine/vendor/engine_data.json": {
+      "from": "ts/src/engine_data.json",
+      "sha256": "af1fcdafde9915fa6a1052e85ce6298c0ef73522ab46ef0402d173dfd6d387e2"
+    },
+    "src/lib/engine/vendor/harness.ts": {
+      "from": "ts/src/harness.ts",
+      "sha256": "688c4d2b3c7ba8826583201b87467984464d96ffc2c639a22c1ba5f9d3b6611f"
+    },
+    "src/lib/engine/vendor/index.ts": {
+      "from": "ts/src/index.ts",
+      "sha256": "1a44f9e184ce5a97a6564fe57fe744fb0e5d2f99ca6467147df301a4db57c431"
+    },
+    "src/lib/engine/vendor/jsonfmt.ts": {
+      "from": "ts/src/jsonfmt.ts",
+      "sha256": "fe97aeb52425d7835e1495beeff899443c5f3812561372053f44fe410e80ccb5"
+    },
+    "src/lib/engine/vendor/models.ts": {
+      "from": "ts/src/models.ts",
+      "sha256": "8ef1efda555e6242e11db91dbaa55e8cef0c5476090527b6f048ec2f2b762424"
+    },
+    "src/lib/engine/vendor/orchestration/durable.ts": {
+      "from": "ts/src/orchestration/durable.ts",
+      "sha256": "726718e5c5eb93b1b1b8d34d0ed2eb91dac7385dda57f4dfcda7dbc7d5b431c9"
+    },
+    "src/lib/engine/vendor/orchestration/graph.ts": {
+      "from": "ts/src/orchestration/graph.ts",
+      "sha256": "ec211e1df226f41e23eaf500939e7f9abf6c5777443846e77f3b9abe6c405409"
+    },
+    "src/lib/engine/vendor/orchestration/index.ts": {
+      "from": "ts/src/orchestration/index.ts",
+      "sha256": "59e2b8d1c57ee08e185a73797f87f2e584458af3ffef16ad1d8d7a0485f5502a"
+    },
+    "src/lib/engine/vendor/orchestration/views.ts": {
+      "from": "ts/src/orchestration/views.ts",
+      "sha256": "244f82793fab78b913213b0ee53942085ed8aff0c758e32d118ade538b36b7ea"
+    },
+    "src/lib/engine/vendor/orchestration_data.json": {
+      "from": "ts/src/orchestration_data.json",
+      "sha256": "2274e9271d3250811cdc6e56f9ee89c2add82148f45755718a27f4f9502d4afb"
+    },
+    "src/lib/engine/vendor/parse.ts": {
+      "from": "ts/src/parse.ts",
+      "sha256": "6546ea75ff849381c1af7b11fdb45663146909f1f7703829224f27dd95d32f97"
+    },
+    "src/lib/engine/vendor/protocols/a2a.ts": {
+      "from": "ts/src/protocols/a2a.ts",
+      "sha256": "0ea7827b4437a0ea4c553cd4dc1cfbd4e2ba0fc8e99d1a71c174247634734b74"
+    },
+    "src/lib/engine/vendor/protocols/gateway.ts": {
+      "from": "ts/src/protocols/gateway.ts",
+      "sha256": "6704d86e5f992d5c64b8a1b3830e9215fa8cb3602d950ca64e738497d27af87b"
+    },
+    "src/lib/engine/vendor/protocols/index.ts": {
+      "from": "ts/src/protocols/index.ts",
+      "sha256": "dc48db96164ca7847c2ee6ffe6a43355056a80b1f60ff37559cdab0b0bf08c31"
+    },
+    "src/lib/engine/vendor/protocols/mcp.ts": {
+      "from": "ts/src/protocols/mcp.ts",
+      "sha256": "7c355aad890950ad04654fa8f34979ae14478b8eb2156be3fa9938b2d1a4617f"
+    },
+    "src/lib/engine/vendor/protocols/oauth.ts": {
+      "from": "ts/src/protocols/oauth.ts",
+      "sha256": "ae02ca3307d7b88b852afb2c5c77fed36e0838418c204573954f2f2cf102fa3b"
+    },
+    "src/lib/engine/vendor/protocols/scenarios.ts": {
+      "from": "ts/src/protocols/scenarios.ts",
+      "sha256": "37e48f5e1a219b2b3076496e0fcee8df9e52ff77cff7340f7cec8f8a5695ac67"
+    },
+    "src/lib/engine/vendor/protocols/security.ts": {
+      "from": "ts/src/protocols/security.ts",
+      "sha256": "1d400b98a32bb421e1f135c5a56e5ebc9b31478829898ff48c03d7dc059a0935"
+    },
+    "src/lib/engine/vendor/protocols/sha256.ts": {
+      "from": "ts/src/protocols/sha256.ts",
+      "sha256": "12be25b3e8b49f9dd420b0b0c20b5b31a90aabf2dad2fdef7d4abec550fe6395"
+    },
+    "src/lib/engine/vendor/protocols/transport.ts": {
+      "from": "ts/src/protocols/transport.ts",
+      "sha256": "f90034084e726abb2a2df52b48481d35a19c349378becd4b89dc6075aa34aa42"
+    },
+    "src/lib/engine/vendor/protocols/views.ts": {
+      "from": "ts/src/protocols/views.ts",
+      "sha256": "08eb305d3d085aa4f07a2b2e83bd6d341c1e6cfd7b517f494c6c9becd48bf694"
+    },
+    "src/lib/engine/vendor/protocols_data.json": {
+      "from": "ts/src/protocols_data.json",
+      "sha256": "87e409be3fa93627556d57d00221cc1ec41baf84014cc1346ed2bebbd7aeaa4f"
+    },
+    "src/lib/engine/vendor/rng.ts": {
+      "from": "ts/src/rng.ts",
+      "sha256": "7a31f5f304c80f66d5b58b95213a8e32ed0d3a8da6062b0d9702ad3a9977d296"
+    },
+    "src/lib/engine/vendor/sweeps.ts": {
+      "from": "ts/src/sweeps.ts",
+      "sha256": "da0635dab64bca38987bd063f37eae91c94be0133bb8fa4b94ab40b67d9bbcdb"
+    },
+    "src/lib/engine/vendor/tokenizer.ts": {
+      "from": "ts/src/tokenizer.ts",
+      "sha256": "b7ef2289b4a8abc871841fe6f191694ce6cc408aaa8c5c49bb1647161f49dd4b"
+    },
+    "src/lib/engine/vendor/tools.ts": {
+      "from": "ts/src/tools.ts",
+      "sha256": "1d42f1c15508f67595c3da2c1ea8261b7d2a4acf3fa5419c877aebcd883324ec"
+    },
+    "src/lib/engine/vendor/views.ts": {
+      "from": "ts/src/views.ts",
+      "sha256": "0d1be7ee567f3d17b20bf75b854246ba4a46857b0143401262f4f9097491f798"
+    },
+    "tests/fixtures/orchestration_fixtures.json": {
+      "from": "fixtures/orchestration_fixtures.json",
+      "sha256": "77b1bedea4543365ab9e2d1e20538bc50c8cf8cae4aabfac108941cc9b2df816"
+    },
+    "src/data/orchestration_results.md": {
+      "from": "fixtures/orchestration_results.md",
+      "sha256": "fad1722c72013dea3d9a02fa4681da763f47a87d869fdd706528e4989b4d800b"
+    },
+    "src/data/langgraph_recordings.json": {
+      "from": "fixtures/langgraph_recordings.json",
+      "sha256": "2d9984daa3f1e181cc2efd34eaa8f5f1ec8897e7585d2d01e612a6a622c0ef92"
+    },
+    "src/data/langgraph_graphs.py.txt": {
+      "from": "conformance/langgraph_graphs.py",
+      "sha256": "f1d951b61c1da7ed8850e4550c12db256b5024bff3ef231f97c13d45e457e536"
+    }
+  }
+}

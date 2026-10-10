@@ -1,0 +1,12 @@
+{
+  "graph": { "sessions": ["chain", "fanout", "react_loop", "loop_join"] },
+  "reducers": { "sessions": ["merge_overwrite", "merge_add", "merge_max", "router_view"] },
+  "checkpoints": { "sessions": ["crash", "approval", "gated_edit", "fork", "replay"] },
+  "durable": {
+    "faults": ["none", "crash_after_charge", "crash_in_charge", "crash_in_ship", "lost_reply"],
+    "sweep_q": [0.05, 0.1, 0.2, 0.3, 0.5],
+    "sweep_a": [1, 2, 3, 5],
+    "sweep_runs": 20000,
+    "sweep_seed": 24
+  }
+}
