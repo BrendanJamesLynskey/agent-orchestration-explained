@@ -26,8 +26,9 @@ Part of a family of companion sites. Agents: [Agent Harnesses Explained](https:/
 [LLM Architectures Explained](https://llm-architectures-explained.vercel.app),
 [GPU Kernels Explained](https://gpu-kernels-explained.vercel.app),
 [Numerics Explained](https://numerics-explained.vercel.app),
-[Systolic Arrays Explained](https://systolic-arrays-explained.vercel.app) and
-[Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app).
+[Systolic Arrays Explained](https://systolic-arrays-explained.vercel.app),
+[Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app) and the
+[Compute in Transit results](https://compute-in-transit-results.vercel.app).
 
 ## Chapters
 
