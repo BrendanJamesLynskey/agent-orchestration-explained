@@ -23,15 +23,16 @@ must equal the engine's. No language model runs on the site or in CI.
 
 Part of a family of companion sites. Agents: [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app),
 [Agent Protocols Explained](https://agent-protocols-explained.vercel.app),
-[Agent Context Explained](https://agent-context-explained.vercel.app) and this one. LLM systems: the
+[Agent Context Explained](https://agent-context-explained.vercel.app) and this one. Inference: the
 [Transformer Decoder Explainer](https://transformer-decoder-explained.vercel.app),
 [LLM Inference Explained](https://llm-inference-explained.vercel.app),
 [LLM Architectures Explained](https://llm-architectures-explained.vercel.app),
 [GPU Kernels Explained](https://gpu-kernels-explained.vercel.app),
 [Numerics Explained](https://numerics-explained.vercel.app),
 [Systolic Arrays Explained](https://systolic-arrays-explained.vercel.app),
-[Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app) and the
-[Compute in Transit results](https://compute-in-transit-results.vercel.app).
+[Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app). Training: the
+[Compute in Transit results](https://compute-in-transit-results.vercel.app), with Training (the second part of the
+decoder site) to come.
 
 ## Chapters
 
