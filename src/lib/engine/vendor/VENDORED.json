@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/BrendanJamesLynskey/Agent_Loop_Sim",
-  "commit": "3240f2deb8d8ba7f2b4b65e3b4b1b149d3d30355",
-  "committed": "2026-10-10T21:04:03+01:00",
+  "commit": "77cf5927919fb2b58de5ea1c8eb681ec82ede612",
+  "committed": "2026-10-10T21:44:24+01:00",
   "files": {
     "src/lib/engine/vendor/accounting.ts": {
       "from": "ts/src/accounting.ts",
