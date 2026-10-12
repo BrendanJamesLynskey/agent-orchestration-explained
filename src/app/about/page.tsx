@@ -48,9 +48,11 @@ export default function AboutPage(): JSX.Element {
           systems as discrete-event systems. Its first four chapters take apart
           LangGraph&apos;s execution model (graphs and super-steps, state with
           reducers, checkpoints, interrupts and time travel) and durable
-          execution (replay, non-determinism, idempotency keys). Every chapter
-          is built around an animation. It is the fourth of a family of agent
-          sites, after{" "}
+          execution (replay, non-determinism, idempotency keys); the next five
+          model multi-agent patterns, fan-out under a rate limit, reliability,
+          many workflows sharing one endpoint, and how to choose between the
+          patterns from the simulation. Every chapter is built around an
+          animation. It is the fourth of a family of agent sites, after{" "}
           <a href={HARNESSES_URL} className={A}>
             Agent Harnesses Explained
           </a>
@@ -93,10 +95,10 @@ export default function AboutPage(): JSX.Element {
           (langgraph-checkpoint {v("conformance.checkpoint", "raw")}, pinned).
           After each of the {v("conformance.ops", "int")} operations (invokes,
           crashes, resumes, <code>Command(resume=…)</code>,{" "}
-          <code>update_state</code>, time travel) the whole checkpoint history
-          is compared with the engine&apos;s: every checkpoint&apos;s step,
-          source, parent, state, next tasks, and each task&apos;s result, error
-          and interrupt. They are equal. The{" "}
+          <code>update_state</code>, time travel, <code>Send</code> fan-outs)
+          the whole checkpoint history is compared with the engine&apos;s: every
+          checkpoint&apos;s step, source, parent, state, next tasks, and each
+          task&apos;s result, error and interrupt. They are equal. The{" "}
           <Link href="/data" className={A}>
             data page
           </Link>{" "}
@@ -119,9 +121,12 @@ export default function AboutPage(): JSX.Element {
           &apos;s orchestration module (engine {DATA.version}): a Python
           reference with a TypeScript port, vendored here at commit{" "}
           <code>{VENDORED.commit.slice(0, 7)}</code> with every file&apos;s
-          SHA-256 recorded. It runs in your browser in a few milliseconds.
-          Agreement between the two languages is exact, with no tolerance: every
-          checkpoint, frame, caption, durable-execution run and seeded sweep.
+          SHA-256 recorded. It runs in your browser in a few milliseconds,
+          except the load sweep of chapter 8 and the chooser&apos;s tables of
+          chapter 9 (thousands of simulated workflows), which the same engine
+          computes when the site is built. Agreement between the two languages
+          is exact, with no tolerance: every checkpoint, frame, caption,
+          durable-execution run and seeded sweep.
         </p>
         <ul>
           <li>
@@ -172,6 +177,24 @@ export default function AboutPage(): JSX.Element {
             </a>
             , not any engine&apos;s format. Its closed forms are exact under
             their stated assumptions, and checked against a seeded simulation.
+          </li>
+          <li>
+            Chapters 5–9: the task, every token size, the accuracy model (a call
+            right with probability 0.98 up to 4,000 prompt tokens, losing a
+            chosen amount per 1,000 tokens beyond; 0.995 for a routing
+            decision), the debate&apos;s first round charged but not credited,
+            the rate limits ({v("scale.defaults.rpm", "int")} requests,{" "}
+            {v("scale.defaults.itpm", "int")} input and{" "}
+            {v("scale.defaults.otpm", "int")} output tokens a minute: small,
+            workspace-style limits, far below the Claude API&apos;s standard
+            tiers), the transient failure rate, timeouts, backoff and jitter,
+            and the reliability chapter&apos;s error rates and verifier. Prices
+            are the engine&apos;s dated list prices; latency is its hosted
+            profile. The rate limiter follows the token-bucket scheme the Claude
+            API documents, with a client that waits for capacity; an errored
+            attempt is not billed and a timed-out one is (assumptions). The
+            simulation&apos;s mechanics (queueing, buckets, retries) and the
+            closed forms are exact; the numbers describe no real system.
           </li>
         </ul>
 

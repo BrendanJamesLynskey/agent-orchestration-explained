@@ -1,0 +1,63 @@
+<FanoutWidget>
+  <Eq
+    label="S of N, the gain with N calls at once, is the time one at a time over the time with N; it is at most Amdahl's bound, one over the serial fraction plus the parallel fraction over N, and at most the time one at a time over the time the token bucket needs to admit everything beyond its capacity"
+    tex="\begin{gathered} S(N) = \frac{T_1}{T_N} \le \frac{1}{(1-\htmlClass{hl-amdahl}{f}) + \htmlClass{hl-amdahl}{f}/N} \\ S(N) \le \frac{T_1}{\htmlClass{hl-ceiling}{T_{\text{bucket}}}}, \quad \htmlClass{hl-ceiling}{T_{\text{bucket}}} = \frac{\textstyle\sum_i n_i - B}{r} \end{gathered}"
+  />
+</FanoutWidget>
+
+<Layer kind="concept">
+
+Map-reduce is the pattern that buys speed: split the work, run the pieces in parallel, combine. In LangGraph the split is a conditional edge that returns one **`Send`** per piece. Each `Send` becomes its own task in the next super-step, whose input is the payload it carries rather than the graph state; all of them run in that one super-step, their writes are combined by the key's reducer at the barrier, and the reduce node runs once, in the super-step after. The engine's runtime models `Send` exactly as LangGraph 1.2.14 does: <V of="conformance.sessions" fmt="int" /> sessions are checked checkpoint for checkpoint against the real library, including a map-reduce, a crash in one worker (with a checkpointer, its siblings' writes are kept and the resume re-runs only the failed worker), an interrupt in one worker, an empty fan-out and sends from two routers beside ordinary edges (the `Send` tasks' writes are applied after the edge-triggered tasks', in send order).
+
+Parallel on paper is not parallel in practice. Here a document of <V of="fanout.fans.0.chunks" fmt="int" /> chunks of <V of="fanout.fans.0.chunk_tokens" fmt="int" /> tokens is summarised chunk by chunk and the summaries reduced, against an endpoint with a limit of <V of="fanout.fans.0.rpm" fmt="int" /> requests and <V of="fanout.fans.0.otpm" fmt="int" /> output tokens a minute and a choice of input-token limits. The **width** is how many calls run at once: LangGraph's `max_concurrency` run setting caps the tasks of a super-step that run together.
+
+- **Without a binding limit** (<V of="fan.200000.w.32.ms" fmt="dur" /> at width 32 and 200,000 input tokens a minute) the speed-up follows **Amdahl's law** exactly: the split and the reduce cannot be parallelised, the summaries are a fraction <V of="fan.200000.parallel_fraction" fmt="f3" /> of the one-at-a-time time, and width 32 gives <V of="fan.200000.w.32.speedup" fmt="f2" />× rather than 32×.
+- **At 80,000 input tokens a minute** the curve bends: the workers need <V of="fan.80000.tin" fmt="int" /> uncached input tokens, the bucket holds 80,000 and refills at 80,000 a minute, so the later calls wait for capacity (hatched). Width 16 reaches <V of="fan.80000.w.16.speedup" fmt="f2" />×, not Amdahl's <V of="fan.80000.w.16.amdahl" fmt="f2" />×, and widening further buys nothing.
+- **At 40,000** the bucket is the whole story: every width from 2 up finishes in <V of="fan.40000.w.2.ms" fmt="dur" /> (<V of="fan.40000.w.2.speedup" fmt="f2" />×), under the bucket's bound of <V of="fan.40000.w.2.ceiling" fmt="f2" />×. More parallelism only makes more calls wait.
+
+The lesson generalises: a fan-out is limited by the slower of two ceilings, the serial part of the work and the rate at which the endpoint will accept tokens. Which one binds is a matter of arithmetic you can do before you build it.
+
+</Layer>
+
+<Callout kind="illustrative">
+
+The document, the chunk and summary sizes, the limits (a deliberately small, workspace-style limit; the Claude API's standard tiers are far higher) and the latency profile are illustrative. The rate limiter follows the Claude API's [documented](https://platform.claude.com/docs/en/api/rate-limits) token-bucket scheme (capacity equal to the per-minute limit, replenished continuously; cache reads do not count toward input tokens), with a client that waits for capacity instead of collecting 429 errors; output tokens are charged when a call ends. No failures are injected in this chapter (chapter 7).
+
+</Callout>
+
+<Layer kind="maths">
+
+Let $T_1$ be the time one call at a time and $f$ the fraction of it that can run in parallel (everything but the split and the reduce). With $N$ calls at once and nothing else in the way, $T_N = T_1\big((1-f) + f/N\big)$: Amdahl's law (G. M. Amdahl, _Validity of the single processor approach to achieving large scale computing capabilities_, AFIPS 1967, doi:10.1145/1465482.1465560), which the engine's tests check the simulation reproduces exactly when the limits are out of reach.
+
+A token bucket with capacity $B$ and refill rate $r$ admits at most $B + r\,t$ tokens by time $t$. To admit all $\sum_i n_i$ uncached input tokens, the last call cannot start before $T_{\text{bucket}} = (\sum_i n_i - B)/r$, so $T_N \ge T_{\text{bucket}}$ whatever $N$ is. At 40,000 tokens a minute the calls need <V of="fan.40000.tin" fmt="int" /> uncached input tokens, so the bound is (<V of="fan.40000.tin" fmt="int" /> − 40,000) at 40,000 a minute, <V of="fan.40000.bound_ms" fmt="dur" />, against <V of="fan.40000.t1" fmt="dur" /> one call at a time. The same bound holds for requests and output tokens; the binding one is the largest. The engine's tests also check that no window of the simulated run admits more input tokens than $B + r\,\Delta t$.
+
+</Layer>
+
+<Layer kind="code">
+
+The admission rule of the discrete-event simulation, cut from the vendored engine (`des.ts`):
+
+```ts
+if (buckets.rq + EPS >= 1 && buckets.it + EPS >= ni && buckets.ot + EPS >= 0) {
+```
+
+And how the graph runtime turns a router's send leaf into `Send` packets (`graph.ts`):
+
+```ts
+for (const item of (state[g.over] ?? []) as unknown[]) {
+  const arg: Obj = { [g.as]: clone(item) };
+  for (const k of (g.with ?? []) as string[]) arg[k] = clone(state[k] ?? null);
+  out.push({ send: g.send, arg });
+}
+```
+
+</Layer>
+
+<Callout kind="deeper">
+
+- Introduction to LangGraph: [multi-agent patterns](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/9) (scatter-gather with `Send`) and [edges and the Pregel model](https://brendanjameslynskey.github.io/Introduction_to_LangGraph/#/5).
+- [Interview LangGraph: subgraphs and `Send`](https://github.com/BrendanJamesLynskey/Interview_LangGraph/blob/main/04_advanced_patterns/subgraphs_and_send.md) (map-reduce, what a worker receives, how it writes back).
+- LangGraph's [Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api) (`Send`, map-reduce) and [workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents) (orchestrator-worker); the Claude API's [rate limits](https://platform.claude.com/docs/en/api/rate-limits).
+- [LLM Inference Explained](https://llm-inference-explained.vercel.app) for why a call takes as long as it does, and [Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app) for the serving side of a rate limit.
+
+</Callout>

@@ -2,7 +2,7 @@
   "name": "agent-orchestration-explained",
   "version": "0.1.0",
   "private": true,
-  "description": "An animated explainer of agent orchestration: LangGraph's execution model (super-steps, channels and reducers, checkpoints, interrupts, time travel) checked against real LangGraph, and durable execution (replay, non-determinism, idempotency keys), driven by a tested engine.",
+  "description": "An animated explainer of agent orchestration: LangGraph's execution model (super-steps, channels and reducers, checkpoints, interrupts, time travel, Send) checked against real LangGraph, durable execution, multi-agent patterns, fan-out under rate limits, reliability and a discrete-event simulation of many workflows, driven by a tested engine.",
   "license": "MIT",
   "author": "Brendan Lynskey <https://github.com/BrendanJamesLynskey>",
   "engines": {
@@ -30,7 +30,8 @@
     "animations": "tsx scripts/capture-animations.ts",
     "smoke": "tsx scripts/smoke-check.ts",
     "fixtures:check": "python3 scripts/make_fixtures.py --check",
-    "vendor:engine": "tsx scripts/vendor-engine.ts"
+    "vendor:engine": "tsx scripts/vendor-engine.ts",
+    "precompute": "tsx scripts/precompute.ts"
   },
   "dependencies": {
     "katex": "^0.16.47",

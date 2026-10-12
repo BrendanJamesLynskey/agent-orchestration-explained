@@ -1,0 +1,54 @@
+<ScaleWidget>
+  <Eq
+    label="The load is the arrival rate over the capacity, the smallest of the rates each limit allows: requests per minute over calls per workflow, input tokens per minute over uncached input tokens per workflow, output tokens likewise, and the concurrency limit over the busy time per workflow; Little's law says the number in the system is the arrival rate times the time in the system"
+    tex="\begin{gathered} \htmlClass{hl-rho}{\rho} = \frac{\lambda}{\mu}, \quad \mu = \min\!\Big(\tfrac{\text{RPM}}{\text{calls}},\, \tfrac{\text{ITPM}}{\text{tokens}_{\text{in}}},\, \tfrac{\text{OTPM}}{\text{tokens}_{\text{out}}},\, \tfrac{C}{\text{busy}}\Big) \\ \htmlClass{hl-little}{L = \lambda\, W}, \quad \htmlClass{hl-tail}{p_{95}},\, \htmlClass{hl-tail}{p_{99}} \text{ grow without bound as } \htmlClass{hl-rho}{\rho} \to 1 \end{gathered}"
+  />
+</ScaleWidget>
+
+<Layer kind="concept">
+
+One workflow at a time tells you its latency and cost. A service runs hundreds at once, and then the questions change: how long do requests **wait**, how bad is the **tail**, and what does a **successful** task cost once retries and failures are counted? The animation is a discrete-event simulation, the same method used for the inference servers on the [Inference Trade-offs](https://inference-tradeoffs-explained.vercel.app) site: <V of="scale.workflows" fmt="int" /> workflows arrive at random (a Poisson process), every model call joins one queue in front of the endpoint, the client admits calls while the concurrency limit (<V of="scale.defaults.concurrency" fmt="int" />) and the token buckets allow, and a failed call (<V of="scale.defaults.fail" fmt="pct" /> of attempts) is retried after a jittered exponential backoff, up to <V of="scale.defaults.max_attempts" fmt="int" /> attempts.
+
+Each pattern has a **capacity**: the workflows per minute the binding limit allows. A supervisor workflow makes <V of="load.supervisor.calls" fmt="int" /> calls and sends <V of="load.supervisor.uncached_in" fmt="int" /> uncached input tokens, so at <V of="scale.defaults.itpm" fmt="int" /> input tokens a minute it can sustain <V of="load.supervisor.capacity.min" fmt="f2" /> workflows a minute, and its requests (<V of="load.supervisor.capacity.requests" fmt="f2" />) bind almost as soon. Below capacity, latency is just the workflow's own: at 2 a minute the supervisor's p95 is <V of="load.supervisor.2.p95" fmt="dur" />. At 3 a minute (load <V of="load.supervisor.3.rho" fmt="f2" />) calls start to queue and the p95 is already <V of="load.supervisor.3.p95" fmt="dur" />; at 4 a minute, past capacity, the queue grows for as long as arrivals continue and the p95 is <V of="load.supervisor.4.p95" fmt="dur" />. That is the **knee**: well below capacity, adding load costs almost nothing; near it, the tail explodes. The single agent's capacity is <V of="load.single.capacity.min" fmt="f2" /> a minute, so it sails through every load up to 6 a minute with a p95 near <V of="load.single.6.p95" fmt="dur" />.
+
+The cost per success barely moves with load (<V of="load.supervisor.2.cost_per_success" fmt="usd" /> to <V of="load.supervisor.4.cost_per_success" fmt="usd" /> for the supervisor): queueing costs time, not tokens. What it does cost is utilisation of the wrong thing: the concurrency slots are mostly idle (<V of="scale.details.supervisor.utilisation" fmt="pct" /> busy at 3 a minute) while the input-token bucket is the bottleneck. Raising the concurrency limit would change nothing; caching more of each prompt (cache reads do not count toward the input limit) or a higher tier would.
+
+</Layer>
+
+<Callout kind="illustrative">
+
+The limits (<V of="scale.defaults.rpm" fmt="int" /> requests, <V of="scale.defaults.itpm" fmt="int" /> input and <V of="scale.defaults.otpm" fmt="int" /> output tokens a minute) are deliberately small, workspace-style limits so the knee is visible at a few workflows a minute; the Claude API's [standard tiers](https://platform.claude.com/docs/en/api/rate-limits) are far higher. Failure rate, timeouts (<V of="scale.defaults.timeout_ms" fmt="dur" />), backoff (<V of="scale.defaults.backoff_ms" fmt="dur" /> doubling, full jitter) and the latency jitter are illustrative; an errored attempt is not billed and a timed-out one is (assumptions). Each point of the load sweep is one seeded run of <V of="scale.workflows" fmt="int" /> workflows.
+
+</Callout>
+
+<Layer kind="maths">
+
+Let a workflow make $k$ calls with $I$ uncached input and $O$ output tokens in all. The buckets admit at most RPM$/k$, ITPM$/I$ and OTPM$/O$ workflows a minute, and $C$ concurrent slots admit at most $C$ divided by the busy time per workflow; the capacity $\mu$ is the smallest. When the arrival rate $\lambda$ exceeds $\mu$ the queue grows without bound (the simulation's run ends only because arrivals stop); below it the queue is finite, but its waits grow sharply as $\rho = \lambda/\mu \to 1$, the shape every queueing model shares (for the simplest, M/M/1, the mean time in the system is $1/(\mu - \lambda)$). The engine's tests check that the simulated throughput saturates at $\mu$ when it is overloaded.
+
+**Little's law**, $L = \lambda W$ (J. D. C. Little, _A proof for the queuing formula L = λW_, Operations Research 1961, doi:10.1287/opre.9.3.383), holds for any stable system: the average number of workflows in the system is the arrival rate times the average time each spends there. In the simulation it is an identity, which the engine's tests check: the area under the "in system" curve equals the sum of the workflows' latencies.
+
+Percentiles are nearest-rank: the $p_{95}$ of $m$ latencies is the $\lceil 0.95\,m \rceil$-th smallest.
+
+</Layer>
+
+<Layer kind="code">
+
+The retry with full jitter, cut from the vendored engine (`des.ts`):
+
+```ts
+if (a < P.max_attempts) {
+  let cap = P.backoff_ms * pow2(a - 1);
+  if (cap > P.backoff_cap_ms) cap = P.backoff_cap_ms;
+  push(at + rng.random() * cap, "retry", w, cid);
+} else finishWf(at, w, "exhausted");
+```
+
+</Layer>
+
+<Callout kind="deeper">
+
+- [Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app) and [LLM Inference Explained](https://llm-inference-explained.vercel.app): the same discrete-event method on the model-serving side, and where a call's latency comes from.
+- The Claude API's [rate limits](https://platform.claude.com/docs/en/api/rate-limits) (token buckets, cache-aware input limits, `retry-after`); AWS's [Exponential backoff and jitter](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/) for why the backoff is randomised.
+- Chapter 6 for the bucket bound on a single fan-out, and chapter 9 for turning these runs into a choice.
+
+</Callout>

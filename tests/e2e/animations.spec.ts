@@ -215,3 +215,24 @@ test("hovering an equation term highlights what it stands for in the picture", a
     0,
   );
 });
+
+test("chapter 6: hovering the bucket term highlights the bound in the chart", async ({
+  page,
+}) => {
+  await page.goto("/learn/06-fan-out-and-map-reduce");
+  const fig = page.getByTestId("fanout-widget");
+  await expect(fig).toBeVisible({ timeout: ENGINE_TIMEOUT });
+  // the terms sit inside KaTeX fractions, whose layers take the pointer: dispatch the hover
+  await fig.locator(".eq-panel .hl-ceiling").first().dispatchEvent("mouseover");
+  await expect(fig.locator(".eq-panel")).toHaveAttribute("data-hl", "ceiling");
+  await expect(fig.getByTestId("ceiling")).toHaveAttribute(
+    "data-focus",
+    "true",
+  );
+  await fig.locator(".eq-panel .hl-amdahl").first().dispatchEvent("mouseover");
+  await expect(fig.locator(".eq-panel")).toHaveAttribute("data-hl", "amdahl");
+  await expect(fig.getByTestId("ceiling")).toHaveAttribute(
+    "data-focus",
+    "false",
+  );
+});

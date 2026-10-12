@@ -33,10 +33,14 @@ The next nodes are decided by the edges alone: node $u$ runs in step $s+1$ if an
 
 <Layer kind="code">
 
-The barrier's order and the next step's nodes, cut from the vendored engine (`graph.ts`). Writes are sorted by node name before the reducers see them, and the next step is every node whose trigger fired, in the order the nodes were added to the graph:
+The barrier's order and the next step's nodes, cut from the vendored engine (`graph.ts`). Writes are sorted by task before the reducers see them (edge-triggered tasks by node name, then any `Send` tasks in send order, chapter 6), and the next step is every node whose trigger fired, in the order the nodes were added to the graph:
 
 ```ts
-writes.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+const key: [number, string, number] = i >= 0 ? [1, "", i] : [0, t, 0];
+```
+
+```ts
+keyed.sort((a, b) => cmpKey(a[0], b[0]));
 ```
 
 ```ts

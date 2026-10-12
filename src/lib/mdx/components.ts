@@ -8,9 +8,14 @@ import type { MDXRemoteProps } from "next-mdx-remote/rsc";
 import { Layer } from "@/components/interactive/Layer";
 import {
   CheckpointWidget,
+  ChooserWidget,
   DurableWidget,
+  FanoutWidget,
   GraphWidget,
+  PatternsWidget,
   ReducerWidget,
+  ReliabilityWidget,
+  ScaleWidget,
 } from "@/components/interactive/lazy";
 import { Eq } from "@/components/mdx/Eq";
 import { V } from "@/components/mdx/V";
@@ -28,4 +33,9 @@ export const mdxComponents: NonNullable<MDXRemoteProps["components"]> = {
   ReducerWidget,
   CheckpointWidget,
   DurableWidget,
+  PatternsWidget,
+  FanoutWidget,
+  ReliabilityWidget,
+  ScaleWidget,
+  ChooserWidget,
 };

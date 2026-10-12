@@ -38,9 +38,84 @@ function graphSession(name: string): Obj {
   };
 }
 
+/** Chapters too heavy to compute in the page: the widget loads them from src/data/precomputed.json
+ * (scripts/precompute.ts writes it with this same function; tests/unit/precomputed.test.ts checks it). */
+export const PRECOMPUTED: Chapter[] = ["scale", "choose"];
+
+/** Chapter 5: the patterns over the task grid, and the default task's plans and frames. */
+function patternsChapter(cfg: Obj): Obj {
+  const S = O.study;
+  const d = cfg.default as Obj;
+  const task = S.taskOf(d.k, d.result_tokens);
+  const model = S.modelOf(d.slope);
+  const plans: Obj = {};
+  const frames: Obj = {};
+  for (const n of O.patterns.PATTERNS) {
+    plans[n] = O.patterns.plan(n, task, model);
+    frames[n] = O.patterns.patternFrames(plans[n]);
+  }
+  return {
+    grid: S.patternsGrid(cfg.ks, cfg.results, cfg.slopes),
+    plans,
+    frames,
+    task: O.patterns.TASK,
+    model: O.patterns.MODEL,
+  };
+}
+
 /** Everything one chapter animates (and quotes). */
 export function runChapter(chapter: Chapter): Obj {
   const cfg = CHAPTER_CONFIGS[chapter];
+  if (chapter === "patterns") return patternsChapter(cfg);
+  if (chapter === "fanout") {
+    const fans = (cfg.itpm as number[]).map((it) => {
+      const f = O.study.fanStudy(
+        cfg.chunks,
+        cfg.chunk_tokens,
+        cfg.widths,
+        cfg.rpm,
+        it,
+        cfg.otpm,
+      );
+      delete f.plan;
+      return f;
+    });
+    return {
+      fans,
+      plan: O.patterns.planMap(cfg.chunks, cfg.chunk_tokens),
+      session: graphSession("map_reduce"),
+    };
+  }
+  if (chapter === "reliability") {
+    const S = O.study;
+    return {
+      studies: (S.REL_CONFIGS as Obj[]).map((c) => S.relStudy(cfg.e, cfg.w, c)),
+      rel: S.REL,
+      configs: S.REL_CONFIGS,
+    };
+  }
+  if (chapter === "scale") {
+    const S = O.study;
+    const details: Obj = {};
+    for (const n of cfg.patterns as string[])
+      details[n] = S.scaleDetail(n, cfg.detail_rate);
+    return {
+      sweep: S.scaleSweep(cfg.patterns, cfg.rates),
+      details,
+      defaults: O.des.DEFAULTS,
+      rates: cfg.rates,
+      detail_rate: cfg.detail_rate,
+      workflows: S.SCALE.workflows,
+      seed: S.SCALE.seed,
+    };
+  }
+  if (chapter === "choose") {
+    const tables: Obj = {};
+    (cfg.k as number[]).forEach((k, i) => {
+      tables[String(k)] = O.study.chooseTable(k, cfg.rates[i]);
+    });
+    return { tables, rates: cfg.rates, workflows: O.study.CHOOSE.workflows };
+  }
   if (chapter === "graph" || chapter === "reducers") {
     const out: Obj = {};
     for (const n of cfg.sessions as string[]) out[n] = graphSession(n);

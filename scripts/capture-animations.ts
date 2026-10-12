@@ -55,6 +55,36 @@ const CLIPS: Clip[] = [
     widget: "durable-widget",
     fps: 2,
   },
+  {
+    name: "patterns",
+    path: "/learn/05-multi-agent-patterns",
+    widget: "patterns-widget",
+    fps: 4,
+  },
+  {
+    name: "fanout",
+    path: "/learn/06-fan-out-and-map-reduce",
+    widget: "fanout-widget",
+    fps: 8,
+  },
+  {
+    name: "reliability",
+    path: "/learn/07-reliability",
+    widget: "reliability-widget",
+    fps: 2,
+  },
+  {
+    name: "scale",
+    path: "/learn/08-running-at-scale",
+    widget: "scale-widget",
+    fps: 10,
+  },
+  {
+    name: "chooser",
+    path: "/learn/09-choosing-a-pattern",
+    widget: "chooser-widget",
+    fps: 1,
+  },
 ];
 
 async function main(): Promise<void> {

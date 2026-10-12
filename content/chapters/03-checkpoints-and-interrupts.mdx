@@ -36,13 +36,13 @@ Resuming: a task whose result is already on the checkpoint is not run again; tim
 
 ```ts
 if (first && reuse && rec.result !== null) {
-  writes.push([t, clone(rec.result)]);
+  keyed.push([key, t, clone(rec.result)]);
   continue;
 }
 ```
 
 ```ts
-else cur = this.put(base.id, base.step + 1, "fork", base.values, base.next, base.barriers, base.ready);
+else cur = this.put(base.id, base.step + 1, "fork", base.values, base.pull, base.barriers, base.ready, base.sends);
 ```
 
 The interrupt in the real LangGraph node the conformance check builds (`conformance/langgraph_graphs.py`):

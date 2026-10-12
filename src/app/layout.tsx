@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s · Agent Orchestration Explained",
   },
   description:
-    "Multi-step and multi-agent systems as discrete-event systems: LangGraph's execution model (super-steps, channels and reducers, checkpoints, interrupts, time travel) checked against real LangGraph, and durable execution (replay, non-determinism, idempotency keys), each animated by a tested engine.",
+    "Multi-step and multi-agent systems as discrete-event systems: LangGraph's execution model (super-steps, channels and reducers, checkpoints, interrupts, time travel) checked against real LangGraph, durable execution (replay, non-determinism, idempotency keys), multi-agent patterns, fan-out under rate limits, reliability and many workflows at scale, each animated by a tested engine.",
 };
 
 export default function RootLayout({

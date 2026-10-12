@@ -35,6 +35,36 @@ export const SECTIONS = [
     summary:
       "An event history replayed after a crash: recorded steps are not run again, a step that reads the clock breaks the replay, and an idempotency key stops a double charge.",
   },
+  {
+    slug: "05-multi-agent-patterns",
+    title: "Multi-agent patterns",
+    summary:
+      "Single agent, supervisor, hierarchical, swarm, debate and map-reduce on the same task: every call on a timeline, each agent's context, and what each pattern costs in tokens, time and reliability.",
+  },
+  {
+    slug: "06-fan-out-and-map-reduce",
+    title: "Fan-out and map-reduce",
+    summary:
+      "Parallel workers under a rate limit: watch calls queue for token capacity and the speed-up saturate, against Amdahl's law and the bound the token bucket sets.",
+  },
+  {
+    slug: "07-reliability",
+    title: "Reliability",
+    summary:
+      "Success decays with every step; retries fix visible errors, a verifier catches silent ones. The closed forms beside seeded simulations and their confidence intervals.",
+  },
+  {
+    slug: "08-running-at-scale",
+    title: "Running at scale",
+    summary:
+      "Hundreds of workflows sharing one rate-limited endpoint: queueing, tail latency, retries and cost per successful task, and the knee where load meets capacity.",
+  },
+  {
+    slug: "09-choosing-a-pattern",
+    title: "Choosing a pattern",
+    summary:
+      "A decision guide built from the simulation: set constraints on success, latency, cost and throughput, and watch them strike out patterns until one is left.",
+  },
 ] as const;
 
 export type SectionSlug = (typeof SECTIONS)[number]["slug"];
