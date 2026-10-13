@@ -21,18 +21,19 @@ must equal the engine's. No language model runs on the site or in CI.
 
 ![Chapter 1: two researchers run in one super-step; their writes wait at the barrier and are applied in task order](docs/screenshots/02-supersteps.png)
 
-Part of a family of companion sites. Agents: [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app),
+Part of a family of companion sites, in four tracks (Foundations, Hardware, Inference, Agents); every
+header shows where you are as "Track › Site". Agents: [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app),
 [Agent Protocols Explained](https://agent-protocols-explained.vercel.app),
-[Agent Context Explained](https://agent-context-explained.vercel.app) and this one. Inference: the
-[Transformer Decoder Explainer](https://transformer-decoder-explained.vercel.app),
+[Agent Context Explained](https://agent-context-explained.vercel.app) and this one. Foundations (one small model, end to end): Decoder, the
+[Transformer Decoder Explainer](https://transformer-decoder-explained.vercel.app), and
+[Training](https://transformer-training-explained.vercel.app). Hardware:
+[GPU Kernels Explained](https://gpu-kernels-explained.vercel.app),
+[Systolic Arrays Explained](https://systolic-arrays-explained.vercel.app) (Silicon), with Racks to come.
+Inference: Serving,
 [LLM Inference Explained](https://llm-inference-explained.vercel.app),
 [LLM Architectures Explained](https://llm-architectures-explained.vercel.app),
-[GPU Kernels Explained](https://gpu-kernels-explained.vercel.app),
 [Numerics Explained](https://numerics-explained.vercel.app),
-[Systolic Arrays Explained](https://systolic-arrays-explained.vercel.app),
-[Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app). Training: the
-[Compute in Transit results](https://compute-in-transit-results.vercel.app), with Training (the second part of the
-decoder site) to come.
+[Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app).
 
 ## Chapters
 
@@ -153,7 +154,7 @@ Deploying, smoke checks and updating the engine: [RUNBOOK.md](RUNBOOK.md).
 ## Origin
 
 The structure, animation infrastructure (`useStepper`, `AnimationPanel`, the clock), MDX pipeline, CI, checks and
-the two-group site switch are copied from
+the four-track site switch are copied from
 [agent-context-explained](https://github.com/BrendanJamesLynskey/agent-context-explained) (itself from
 agent-protocols-explained, agent-harnesses-explained and gpu-kernels-explained); the engine vendoring follows
 llm-inference-explained.

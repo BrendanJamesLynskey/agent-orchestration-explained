@@ -14,7 +14,7 @@
  * proves it rendered from the engine: the landing page must print the engine's own numbers
  * (computed here with the same code), the data page every conformance session and the
  * LangGraph version, every chapter its MDX (a layer, server-rendered KaTeX, the animation's
- * placeholder), and the header the three-group site switch. (This site ships no data files: the
+ * placeholder), and the header the four-track site switch. (This site ships no data files: the
  * engine computes everything in the page.)
  */
 import RECORDING from "@/data/langgraph_recordings.json";
@@ -35,7 +35,10 @@ const SWITCH = [
   'href="https://agent-protocols-explained.vercel.app"',
   'href="https://agent-context-explained.vercel.app"',
   'href="https://agent-orchestration-explained.vercel.app"',
-  'data-site-group="training"',
+  'data-site-group="foundations"',
+  'data-site-group="hardware"',
+  'data-site-place="orchestration"',
+  'data-site-key="inference"',
   'href="https://gpu-kernels-explained.vercel.app"',
 ];
 
