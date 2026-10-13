@@ -24,7 +24,8 @@ must equal the engine's. No language model runs on the site or in CI.
 Part of a family of companion sites, in four tracks (Foundations, Hardware, Inference, Agents); every
 header shows where you are as "Track › Site". Agents: [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app),
 [Agent Protocols Explained](https://agent-protocols-explained.vercel.app),
-[Agent Context Explained](https://agent-context-explained.vercel.app) and this one. Foundations (one small model, end to end): Decoder, the
+[Agent Context Explained](https://agent-context-explained.vercel.app), this one, then
+[Agent Evals Explained](https://agent-evals-explained.vercel.app). Foundations (one small model, end to end): Decoder, the
 [Transformer Decoder Explainer](https://transformer-decoder-explained.vercel.app), and
 [Training](https://transformer-training-explained.vercel.app). Hardware:
 [GPU Kernels Explained](https://gpu-kernels-explained.vercel.app),
