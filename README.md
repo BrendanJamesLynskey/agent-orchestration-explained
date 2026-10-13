@@ -28,7 +28,8 @@ header shows where you are as "Track › Site". Agents: [Agent Harnesses Explain
 [Transformer Decoder Explainer](https://transformer-decoder-explained.vercel.app), and
 [Training](https://transformer-training-explained.vercel.app). Hardware:
 [GPU Kernels Explained](https://gpu-kernels-explained.vercel.app),
-[Systolic Arrays Explained](https://systolic-arrays-explained.vercel.app) (Silicon), with Racks to come.
+[Systolic Arrays Explained](https://systolic-arrays-explained.vercel.app) (Silicon) and
+[AI Racks Explained](https://ai-racks-explained.vercel.app) (Racks).
 Inference: Serving,
 [LLM Inference Explained](https://llm-inference-explained.vercel.app),
 [LLM Architectures Explained](https://llm-architectures-explained.vercel.app),
