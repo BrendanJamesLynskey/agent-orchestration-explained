@@ -21,6 +21,12 @@ export const CONTEXT_URL = "https://agent-context-explained.vercel.app";
 
 export const GITHUB_URL =
   "https://github.com/BrendanJamesLynskey/agent-orchestration-explained";
+
+/** The author, credited in one quiet line at the foot of the About page. */
+export const AUTHOR = {
+  name: "Brendan Lynskey",
+  url: "https://github.com/BrendanJamesLynskey",
+} as const;
 export const ENGINE_URL =
   "https://github.com/BrendanJamesLynskey/Agent_Loop_Sim";
 
