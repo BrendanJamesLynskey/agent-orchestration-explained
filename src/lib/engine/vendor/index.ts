@@ -17,3 +17,5 @@ export { VERSION, TOOL_SPECS, PRICES, LATENCY, DEFAULT_POLICY, SCENARIOS, scenar
 export * as protocols from "./protocols/index";
 export * as context from "./context/index";
 export * as orchestration from "./orchestration/index";
+export * as evals from "./evals/index";
+export * as policy from "./policy/index";

@@ -50,7 +50,7 @@ describe("vendored engine", () => {
         "utf8",
       ),
     ) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-    expect(fx.engine).toBe("1.7.0");
+    expect(fx.engine).toBe("1.11.1");
     for (const s of fx.sessions)
       expect(O.runSession(O.graph(s.graph), O.session(s.name).ops).ops).toEqual(
         s.ops,
@@ -69,7 +69,7 @@ describe("vendored engine", () => {
         "utf8",
       ),
     ) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-    expect(fx.engine).toBe("1.7.0");
+    expect(fx.engine).toBe("1.11.1");
     for (const n of O.patterns.PATTERNS) {
       expect(O.patterns.plan(n)).toEqual(fx.plans[n]);
       expect(O.patterns.patternFrames(O.patterns.plan(n))).toEqual(
