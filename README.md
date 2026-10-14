@@ -25,7 +25,8 @@ Part of a family of companion sites, in four tracks (Foundations, Hardware, Infe
 header shows where you are as "Track › Site". Agents: [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app),
 [Agent Protocols Explained](https://agent-protocols-explained.vercel.app),
 [Agent Context Explained](https://agent-context-explained.vercel.app), this one, then
-[Agent Evals Explained](https://agent-evals-explained.vercel.app). Foundations (one small model, end to end): Decoder, the
+[Agent Evals Explained](https://agent-evals-explained.vercel.app) and
+[Agent Security Explained](https://agent-security-explained.vercel.app). Foundations (one small model, end to end): Decoder, the
 [Transformer Decoder Explainer](https://transformer-decoder-explained.vercel.app), and
 [Training](https://transformer-training-explained.vercel.app). Hardware:
 [GPU Kernels Explained](https://gpu-kernels-explained.vercel.app),
