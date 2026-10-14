@@ -111,7 +111,7 @@ The [data page](https://agent-orchestration-explained.vercel.app/data) lists eve
 
 The site vendors Agent_Loop_Sim's TypeScript port at a pinned commit (`pnpm vendor:engine <sha>`;
 `src/lib/engine/vendor/VENDORED.json` records the commit and each file's SHA-256) and runs its `orchestration`
-module (engine 1.7.0) in the page: a graph runtime (state channels with reducers, nodes as deterministic operation
+module (engine 1.7.0; vendored at 1.11.1) in the page: a graph runtime (state channels with reducers, nodes as deterministic operation
 lists, static, join and conditional edges, super-steps, checkpoints, pending writes, dynamic and static interrupts,
 `update_state`, replay and fork, `Send` for map-reduce), a durable-execution model (event history, replay, markers, idempotency keys,
 lost replies and retries, a seeded sweep), and the views the animations draw (super-step frames, reducer folds,

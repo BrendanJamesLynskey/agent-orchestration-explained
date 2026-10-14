@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/BrendanJamesLynskey/Agent_Loop_Sim",
-  "commit": "77cf5927919fb2b58de5ea1c8eb681ec82ede612",
-  "committed": "2026-10-10T21:44:24+01:00",
+  "commit": "46b445cfeaba080a360af37ebac649474f61d160",
+  "committed": "2026-10-14T12:21:40+01:00",
   "files": {
     "src/lib/engine/vendor/accounting.ts": {
       "from": "ts/src/accounting.ts",
@@ -69,7 +69,55 @@
     },
     "src/lib/engine/vendor/engine_data.json": {
       "from": "ts/src/engine_data.json",
-      "sha256": "f842ba62d214d720f17a9b996b16d1c7fa16f824415adfcad9a5091b2668ea73"
+      "sha256": "1014eaf1c11b02edaac85677117dfde67dcdedea8d6bb0ed5e190ddea08903d8"
+    },
+    "src/lib/engine/vendor/evals/contamination.ts": {
+      "from": "ts/src/evals/contamination.ts",
+      "sha256": "9b4f2d4e763ae7b2a0238978fd9e430f66c7220f70c35b09217ee7b6253e034d"
+    },
+    "src/lib/engine/vendor/evals/generator.ts": {
+      "from": "ts/src/evals/generator.ts",
+      "sha256": "1828cec00a690441f5a3a52e70480807a579d97d5f7d5692b84d4ff5b17d04e7"
+    },
+    "src/lib/engine/vendor/evals/index.ts": {
+      "from": "ts/src/evals/index.ts",
+      "sha256": "6db6416d4ee55c8a0feb5717ab454a44e4b63cc69f5f996429db975a4ec2aa7f"
+    },
+    "src/lib/engine/vendor/evals/judge.ts": {
+      "from": "ts/src/evals/judge.ts",
+      "sha256": "d554443b6ed0869681614d2165fa6df300253e6f05d9240c4d9ec247ed22f279"
+    },
+    "src/lib/engine/vendor/evals/mathx.ts": {
+      "from": "ts/src/evals/mathx.ts",
+      "sha256": "4da3bf95f15ec5a33b8db588f4be290210a545989930b85db6cc99e697d1e136"
+    },
+    "src/lib/engine/vendor/evals/scaffold.ts": {
+      "from": "ts/src/evals/scaffold.ts",
+      "sha256": "97379909d40808ea392f89437543438f5f702131ac23698281f19f41e59b164b"
+    },
+    "src/lib/engine/vendor/evals/stats.ts": {
+      "from": "ts/src/evals/stats.ts",
+      "sha256": "aafb6b9c910632165d8c76dd13dab1f0872c9f22fc3ec57b1d1473a2dfd8d797"
+    },
+    "src/lib/engine/vendor/evals/study.ts": {
+      "from": "ts/src/evals/study.ts",
+      "sha256": "a60abb64f9d43881907ab3b7c58e3d2f3b97701c14540b21ea7dc23e39a6d254"
+    },
+    "src/lib/engine/vendor/evals/swe.ts": {
+      "from": "ts/src/evals/swe.ts",
+      "sha256": "d12a944b0c26350e6be62f74792ef390a0ebf2302bb9da81f5e13155c4fbf31a"
+    },
+    "src/lib/engine/vendor/evals/trajectory.ts": {
+      "from": "ts/src/evals/trajectory.ts",
+      "sha256": "794bd241d4dbcaf15e92b3f4a1213ab4f847b1d4e1a02756cc1349b1932222e9"
+    },
+    "src/lib/engine/vendor/evals2_data.json": {
+      "from": "ts/src/evals2_data.json",
+      "sha256": "b0fd7908a9f809bf9145102172f4ba90fd3151ec2382e9fd5c1ee95ca14b7bf4"
+    },
+    "src/lib/engine/vendor/evals_data.json": {
+      "from": "ts/src/evals_data.json",
+      "sha256": "4c8f8af34f3e82c437901820d17dfe075f292f1ccfb7ff3267773b015bba5e25"
     },
     "src/lib/engine/vendor/harness.ts": {
       "from": "ts/src/harness.ts",
@@ -77,7 +125,7 @@
     },
     "src/lib/engine/vendor/index.ts": {
       "from": "ts/src/index.ts",
-      "sha256": "1a44f9e184ce5a97a6564fe57fe744fb0e5d2f99ca6467147df301a4db57c431"
+      "sha256": "60d9f02ae74787295e8145384ca5a113a74ee5da29cfe51b0400ee81d242530c"
     },
     "src/lib/engine/vendor/jsonfmt.ts": {
       "from": "ts/src/jsonfmt.ts",
@@ -121,11 +169,51 @@
     },
     "src/lib/engine/vendor/orchestration_data.json": {
       "from": "ts/src/orchestration_data.json",
-      "sha256": "af66b60a1d8024ec38fe65910a88fef3d89ec2bba1f6a504ae2befd72e5b22fb"
+      "sha256": "ce6e743b6e0ddfeec00ae31e37929461573fd775f53f4a4b2f1efc9e05ca2a30"
     },
     "src/lib/engine/vendor/parse.ts": {
       "from": "ts/src/parse.ts",
       "sha256": "6546ea75ff849381c1af7b11fdb45663146909f1f7703829224f27dd95d32f97"
+    },
+    "src/lib/engine/vendor/policy/capabilities.ts": {
+      "from": "ts/src/policy/capabilities.ts",
+      "sha256": "686f7c6dbdece6e8b52be841b0ebb572ce7851c7f29853a16a79dc97995584cb"
+    },
+    "src/lib/engine/vendor/policy/catalogue.ts": {
+      "from": "ts/src/policy/catalogue.ts",
+      "sha256": "67a2e56fddc22de72e1bd05c9f4af4a79a598cae642ce4ca4ab2f6d11b8715a5"
+    },
+    "src/lib/engine/vendor/policy/depth.ts": {
+      "from": "ts/src/policy/depth.ts",
+      "sha256": "0fe861b4f0674747a762c2936b55f115f604058743d736d91bf66d4767f6c0b8"
+    },
+    "src/lib/engine/vendor/policy/engine.ts": {
+      "from": "ts/src/policy/engine.ts",
+      "sha256": "67c26af90cffbd5d293e3647ef8c7644137918ce8026ead6140a54c4b168b7e8"
+    },
+    "src/lib/engine/vendor/policy/index.ts": {
+      "from": "ts/src/policy/index.ts",
+      "sha256": "ef30905b0fcc30061a334c7d9d5a32c2b4bc1488616fa5ecb309124c74cedd9a"
+    },
+    "src/lib/engine/vendor/policy/labels.ts": {
+      "from": "ts/src/policy/labels.ts",
+      "sha256": "7d7571ff69b3365b642a9582eb29ef4be048e25ad8b1644927c1b5277440f2a1"
+    },
+    "src/lib/engine/vendor/policy/sandbox.ts": {
+      "from": "ts/src/policy/sandbox.ts",
+      "sha256": "58a9a0232f581eb403c6fafa08fc2f4b69c7509d7b0ab799ec74be89a05dde43"
+    },
+    "src/lib/engine/vendor/policy/study.ts": {
+      "from": "ts/src/policy/study.ts",
+      "sha256": "34d90f7237349302fdf520aac9006c85929d045520724bedfbbdfa1234d70be1"
+    },
+    "src/lib/engine/vendor/policy/utility.ts": {
+      "from": "ts/src/policy/utility.ts",
+      "sha256": "417d8f84548bb9e6b67acf7de10488be204b7025db50e5e2f0b7de0dc6dd4126"
+    },
+    "src/lib/engine/vendor/policy_data.json": {
+      "from": "ts/src/policy_data.json",
+      "sha256": "180b5faef2b99c5257ce6926529046fcbfd80b783de65616367c0de5abeb5c59"
     },
     "src/lib/engine/vendor/protocols/a2a.ts": {
       "from": "ts/src/protocols/a2a.ts",
@@ -153,7 +241,7 @@
     },
     "src/lib/engine/vendor/protocols/security.ts": {
       "from": "ts/src/protocols/security.ts",
-      "sha256": "1d400b98a32bb421e1f135c5a56e5ebc9b31478829898ff48c03d7dc059a0935"
+      "sha256": "e9a20477fabd828e1671b587735fc752841ff426ba9757ab6f002aacbaddf5a4"
     },
     "src/lib/engine/vendor/protocols/sha256.ts": {
       "from": "ts/src/protocols/sha256.ts",
@@ -169,7 +257,7 @@
     },
     "src/lib/engine/vendor/protocols_data.json": {
       "from": "ts/src/protocols_data.json",
-      "sha256": "9ea5f47faa50599756f0f2abedcddd96bcc6ff291b480f3292c86839d4b995bd"
+      "sha256": "5e8d1d05ba7f0da4b3762d0428a41cbf969a18b6a86cee91477f76eae8dedec6"
     },
     "src/lib/engine/vendor/rng.ts": {
       "from": "ts/src/rng.ts",
@@ -193,11 +281,11 @@
     },
     "tests/fixtures/orchestration_fixtures.json": {
       "from": "fixtures/orchestration_fixtures.json",
-      "sha256": "9d9ce2e7fd7ea8bf578a529da3bf17a4cf755ef1a820fac6afa70a68765bc767"
+      "sha256": "766356742377b2f535832369f0c1ebedd92cb21e787969b8109fe25f651b74d2"
     },
     "src/data/orchestration_results.md": {
       "from": "fixtures/orchestration_results.md",
-      "sha256": "10c57aecd6cff5ad3137f7551b9e8fa82a190fa7ed2c67cf26a5426cbd819d0e"
+      "sha256": "2789b44c21221d29c7a5997b33a4bdbe5177d8fbd9017f0332032eca1e0cd10c"
     },
     "src/data/langgraph_recordings.json": {
       "from": "fixtures/langgraph_recordings.json",
@@ -209,11 +297,11 @@
     },
     "tests/fixtures/orchestration2_fixtures.json": {
       "from": "fixtures/orchestration2_fixtures.json",
-      "sha256": "d4f20e7f21b5dee3be7605b6741bc765fbad0e4afabba24976959646291c722a"
+      "sha256": "000eb6d680b51f6b91d4bffba4d9c94266c63d83a45e824e0dd1d36828c36ff3"
     },
     "src/data/orchestration2_results.md": {
       "from": "fixtures/orchestration2_results.md",
-      "sha256": "0248b7a3c8e4f0e6bba40675d23056c19b0335a1c458424d5eaf50d76f46d503"
+      "sha256": "a593efff39df20fde516ca0c5c1ec60a7e11af9f9752c51707c95256ee870328"
     }
   }
 }
