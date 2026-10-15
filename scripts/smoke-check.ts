@@ -46,6 +46,7 @@ const SWITCH = [
   'data-site-group="foundations"',
   'data-site-group="hardware"',
   'href="https://ai-racks-explained.vercel.app"',
+  'href="https://ai-accelerators-explained.vercel.app"',
   'data-site-place="orchestration"',
   'data-site-brand="true" class="focus-ring whitespace-nowrap rounded text-sm font-medium tracking-tight" href="/">Agent Orchestration Explained</a>',
   'data-site-key="inference"',
