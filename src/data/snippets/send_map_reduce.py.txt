@@ -1,0 +1,34 @@
+import operator
+from typing import Annotated, TypedDict
+
+from langgraph.graph import END, START, StateGraph
+from langgraph.types import Send
+
+
+class State(TypedDict):
+    questions: list[str]
+    answers: Annotated[list[str], operator.add]  # each worker's write is appended
+
+
+def fan_out(state: State) -> list[Send]:
+    # one Send per item: each runs `worker` with its own input, in the same super-step
+    return [Send("worker", {"question": q}) for q in state["questions"]]
+
+
+def worker(arg: dict) -> dict:
+    return {"answers": [f"answer to {arg['question']}"]}
+
+
+def reduce(state: State) -> dict:
+    return {"answers": [f"{len(state['answers'])} answers merged"]}
+
+
+g = StateGraph(State)
+g.add_node("worker", worker)
+g.add_node("reduce", reduce)
+g.add_conditional_edges(START, fan_out, ["worker"])
+g.add_edge("worker", "reduce")
+g.add_edge("reduce", END)
+app = g.compile()
+
+print(app.invoke({"questions": ["q1", "q2", "q3"], "answers": []})["answers"])

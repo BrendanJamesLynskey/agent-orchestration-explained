@@ -2,3 +2,5 @@
 agent-loop-sim @ git+https://github.com/BrendanJamesLynskey/Agent_Loop_Sim@46b445cfeaba080a360af37ebac649474f61d160
 jsonschema>=4.0
 pytest>=8.0
+# chapter 6's "In production" snippet (src/data/snippets/send_map_reduce.py.txt) runs in real LangGraph
+langgraph==1.2.14
