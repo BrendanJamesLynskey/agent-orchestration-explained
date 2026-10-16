@@ -9,12 +9,13 @@ import Link from "next/link";
 
 import { SECTIONS } from "@/lib/mdx/sections";
 import { INTRO_LANGGRAPH } from "@/lib/site";
+import { withShare } from "@/lib/share";
 
-export const metadata = {
+export const metadata = withShare("/learn", {
   title: "Learn",
   description:
     "Nine chapters on agent orchestration: from a chain to a graph (super-steps), state, channels and reducers, checkpoints and interrupts, durable execution, multi-agent patterns, fan-out under rate limits, reliability, running at scale and choosing a pattern, each built around an animation driven by a tested engine checked against LangGraph.",
-};
+});
 
 export default function LearnIndex(): JSX.Element {
   return (

@@ -141,6 +141,15 @@ LangGraph's, as recorded.
 | Every page at 1,280 and 390 px, light and dark: no errors, no overflow; every animation plays, steps, scrubs, resets, keys; reduced motion; frame captions on the page; axe; the site switch | CI "E2E Tests" (`tests/e2e`)                                                 |
 | Lighthouse ≥ 0.9 (performance, accessibility, best practices)                                                                                                                                | CI "Lighthouse"                                                              |
 | LangGraph conformance, re-recorded live in pinned langgraph 1.2.14                                                                                                                           | Agent_Loop_Sim CI (`scripts/record_langgraph.py --check`)                    |
+| Link-preview tags and 1,200 × 630 cards, favicon and Apple icon, sitemap and robots; the landing page's start button, "How this is checked" strip and hero figure above the fold at 390 px   | CI "E2E Tests" (`tests/e2e/sharing.spec.ts`)                                 |
+
+## Sharing
+
+Every page carries Open Graph and Twitter tags, titled and addressed as that page. The link-preview cards (1,200 × 630 PNG)
+are drawn at build time by [`src/app/_og/card.tsx`](src/app/_og/card.tsx), the same file on every companion site, from
+this site's [`src/lib/share.ts`](src/lib/share.ts): one for the site and one per chapter. The favicon
+([`src/app/icon.svg`](src/app/icon.svg)) is the Agents track's speech bubble with this site's letter, O; [`/sitemap.xml`](src/app/sitemap.ts) lists every page and
+[`/robots.txt`](src/app/robots.ts) allows everything.
 
 ## Develop
 

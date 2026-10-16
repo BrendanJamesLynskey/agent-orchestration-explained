@@ -22,12 +22,13 @@ import {
   TRADEOFFS_URL,
   repoFile,
 } from "@/lib/site";
+import { withShare } from "@/lib/share";
 
-export const metadata = {
+export const metadata = withShare("/about", {
   title: "About",
   description:
     "What Agent Orchestration Explained's engine computes, how its graph runtime is checked against real LangGraph, what is illustrative, and how Python and the browser are checked to agree exactly.",
-};
+});
 
 const A =
   "focus-ring rounded text-accent underline underline-offset-2 dark:text-indigo-300";
@@ -80,7 +81,7 @@ export default function AboutPage(): JSX.Element {
           and others, all in the header&apos;s switch).
         </p>
 
-        <h2>Checked against real LangGraph</h2>
+        <h2 id="langgraph">Checked against real LangGraph</h2>
         <p>
           The engine&apos;s graph runtime is a model of{" "}
           <a href={LANGGRAPH_REPO} className={A}>
