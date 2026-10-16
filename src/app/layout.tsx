@@ -10,10 +10,11 @@ import type { ReactNode } from "react";
 
 import { SiteHeader } from "@/components/ui/SiteHeader";
 import { SITE_URL } from "@/lib/site";
+import { withShare } from "@/lib/share";
 
 import "./globals.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withShare("/", {
   metadataBase: new URL(SITE_URL),
   title: {
     default: "Agent Orchestration Explained",
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   },
   description:
     "Multi-step and multi-agent systems as discrete-event systems: LangGraph's execution model (super-steps, channels and reducers, checkpoints, interrupts, time travel) checked against real LangGraph, durable execution (replay, non-determinism, idempotency keys), multi-agent patterns, fan-out under rate limits, reliability and many workflows at scale, each animated by a tested engine.",
-};
+});
 
 export default function RootLayout({
   children,

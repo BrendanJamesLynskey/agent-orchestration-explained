@@ -13,12 +13,13 @@ import {
   PREGEL_DOI,
   TEMPORAL_WORKFLOWS,
 } from "@/lib/site";
+import { withShare } from "@/lib/share";
 
-export const metadata = {
+export const metadata = withShare("/data", {
   title: "Data",
   description:
     "The LangGraph conformance sessions (langgraph 1.2.14, every checkpoint compared), the super-step timings of the teaching graphs, every durable-execution run and seeded sweep, the multi-agent patterns, fan-out under a rate limit, reliability against its closed forms, the load sweep and the chooser's tables.",
-};
+});
 
 const A =
   "focus-ring rounded text-accent underline underline-offset-2 dark:text-indigo-300";

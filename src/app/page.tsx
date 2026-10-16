@@ -1,5 +1,7 @@
+import type { Route } from "next";
 import Link from "next/link";
 
+import { CheckedStrip, StartButton } from "@/components/ui/Landing";
 import { SpeedBars } from "@/components/viz/SpeedBars";
 import { SECTIONS } from "@/lib/mdx/sections";
 import { formatValue, lookup } from "@/lib/orch/values";
@@ -23,39 +25,21 @@ export default function HomePage(): JSX.Element {
       <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
         Agents as graphs, steps and checkpoints.
       </h1>
-      <div className="mt-8 grid items-center gap-8 md:grid-cols-[1fr_minmax(0,22rem)]">
+      <div className="mt-6 grid items-start gap-8 md:grid-cols-[1fr_minmax(0,22rem)]">
         <div>
           <p className="max-w-2xl text-lg text-neutral-600 dark:text-neutral-300">
-            A multi-step agent is a <strong>discrete-event system</strong>:
-            nodes run in steps, write to a shared state, wait at barriers, save
-            checkpoints, pause for people, crash and resume. This site takes{" "}
-            <a href={LANGGRAPH_REPO} className={LINK}>
-              LangGraph
-            </a>
-            &apos;s execution model apart, super-step by super-step, and then
-            durable execution: replaying a workflow&apos;s history after a crash
-            without paying for its side effects twice. Then it scales up:
-            multi-agent patterns compared on one task, fan-out against a rate
-            limit, reliability with retries and verifiers, hundreds of workflows
-            sharing one endpoint, and a pattern chosen from the simulation
-            rather than from opinion.
+            An interactive guide to agents as graphs: steps, checkpoints,
+            multi-agent patterns and durable runs, on an engine checked against
+            LangGraph.
           </p>
-          <p className="mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
-            The animations are driven by{" "}
-            <a href={ENGINE_URL} className={LINK}>
-              Agent_Loop_Sim
-            </a>
-            &apos;s orchestration module, identically in Python and in your
-            browser. Its graph runtime is checked against real LangGraph{" "}
-            {v("conformance.langgraph", "raw")} in CI:{" "}
-            {v("conformance.sessions", "int")} sessions,{" "}
-            {v("conformance.ops", "int")} operations (runs, crashes, resumes,
-            interrupts, edits, time travel, <code>Send</code> fan-outs) and{" "}
-            {v("conformance.checkpoints", "int")} checkpoints, every one equal.
-            No language model runs anywhere.
-          </p>
+          <div className="mt-6">
+            <StartButton href={`/learn/${SECTIONS[0]!.slug}` as Route} />
+          </div>
         </div>
-        <figure className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+        <figure
+          data-hero-figure
+          className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
+        >
           <SpeedBars />
           <figcaption className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
             Chapter 1&apos;s graphs: a super-step lasts as long as its slowest
@@ -64,6 +48,46 @@ export default function HomePage(): JSX.Element {
           </figcaption>
         </figure>
       </div>
+      <CheckedStrip href="/about#langgraph">
+        Each of {v("conformance.sessions", "int")} sessions also runs in real
+        LangGraph {v("conformance.langgraph", "raw")}, and after every one of{" "}
+        {v("conformance.ops", "int")} operations its whole checkpoint history
+        equals the engine&apos;s.
+      </CheckedStrip>
+      <section aria-labelledby="learn-heading" className="mt-12">
+        <h2 id="learn-heading" className="text-xl font-semibold tracking-tight">
+          What you&apos;ll learn
+        </h2>
+        <p className="mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
+          A multi-step agent is a <strong>discrete-event system</strong>: nodes
+          run in steps, write to a shared state, wait at barriers, save
+          checkpoints, pause for people, crash and resume. This site takes{" "}
+          <a href={LANGGRAPH_REPO} className={LINK}>
+            LangGraph
+          </a>
+          &apos;s execution model apart, super-step by super-step, and then
+          durable execution: replaying a workflow&apos;s history after a crash
+          without paying for its side effects twice. Then it scales up:
+          multi-agent patterns compared on one task, fan-out against a rate
+          limit, reliability with retries and verifiers, hundreds of workflows
+          sharing one endpoint, and a pattern chosen from the simulation rather
+          than from opinion.
+        </p>
+        <p className="mt-4 max-w-2xl text-neutral-600 dark:text-neutral-300">
+          The animations are driven by{" "}
+          <a href={ENGINE_URL} className={LINK}>
+            Agent_Loop_Sim
+          </a>
+          &apos;s orchestration module, identically in Python and in your
+          browser. Its graph runtime is checked against real LangGraph{" "}
+          {v("conformance.langgraph", "raw")} in CI:{" "}
+          {v("conformance.sessions", "int")} sessions,{" "}
+          {v("conformance.ops", "int")} operations (runs, crashes, resumes,
+          interrupts, edits, time travel, <code>Send</code> fan-outs) and{" "}
+          {v("conformance.checkpoints", "int")} checkpoints, every one equal. No
+          language model runs anywhere.
+        </p>
+      </section>
       <nav aria-label="Chapters" className="mt-12 grid gap-4 sm:grid-cols-2">
         {SECTIONS.map((s, i) => (
           <Link
