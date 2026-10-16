@@ -13,7 +13,7 @@ import { INTRO_LANGGRAPH } from "@/lib/site";
 export const metadata = {
   title: "Learn",
   description:
-    "Four chapters on agent orchestration: from a chain to a graph (super-steps), state, channels and reducers, checkpoints and interrupts (crash, resume, human-in-the-loop, time travel), and durable execution (replay, non-determinism, idempotency keys), each built around an animation driven by a tested engine checked against LangGraph.",
+    "Nine chapters on agent orchestration: from a chain to a graph (super-steps), state, channels and reducers, checkpoints and interrupts, durable execution, multi-agent patterns, fan-out under rate limits, reliability, running at scale and choosing a pattern, each built around an animation driven by a tested engine checked against LangGraph.",
 };
 
 export default function LearnIndex(): JSX.Element {
