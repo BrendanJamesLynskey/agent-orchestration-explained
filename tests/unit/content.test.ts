@@ -32,6 +32,13 @@ const PAGES = ["/data", "/about", "/learn"];
 const BUILDER = squash(
   readFileSync(path.join(ROOT, "src/data/langgraph_graphs.py.txt"), "utf8"),
 );
+// "In production" snippets: run in real LangGraph by tests/python/test_snippets.py
+const SNIPPETS = squash(
+  readFileSync(
+    path.join(ROOT, "src/data/snippets/send_map_reduce.py.txt"),
+    "utf8",
+  ),
+);
 
 describe("chapter files", () => {
   it("there is one per section, in order", () => {
@@ -46,9 +53,9 @@ for (const f of FILES) {
       expect(src.trimStart()).toMatch(/^<[A-Z][a-zA-Z0-9]+Widget[ >]/);
     });
 
-    it("cuts every Python block from the LangGraph builder the conformance check uses", () => {
+    it("cuts every Python block from the LangGraph builder the conformance check uses, or from a tested snippet", () => {
       for (const m of src.matchAll(/```python\n([\s\S]*?)```/g))
-        expect(BUILDER, m[1]).toContain(squash(m[1]!));
+        expect(BUILDER + "\n" + SNIPPETS, m[1]).toContain(squash(m[1]!));
     });
 
     it("cuts every TypeScript block from the vendored engine", () => {
