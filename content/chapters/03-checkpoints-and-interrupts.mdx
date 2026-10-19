@@ -7,6 +7,8 @@
 
 <Layer kind="concept">
 
+<span id="or-checkpoints" />
+
 With a **checkpointer**, LangGraph saves a **checkpoint** after every super-step: the state, the nodes due to run next, and, as tasks finish, their writes. A thread's checkpoints form a history you can list, resume and branch. The animation plays five sessions on the engine's runtime; each is also one of the conformance sessions run in real LangGraph.
 
 - **A crash, then resume.** `load` fans out to `enrich` and `score`; the worker running `enrich` dies. No checkpoint is written for that step, but `score` had finished, and its writes are kept on the last checkpoint as **pending writes**. `invoke(None)` resumes: only `enrich` runs again. The side-effects list shows the price: `enrich` called its API twice (<V of="timeline_summary.crash.effects" fmt="int" /> effects in all for <V of="timeline_summary.crash.runs" fmt="int" /> node runs).
@@ -23,6 +25,8 @@ The graphs and their side effects (an API call, a notification, an email, a `git
 </Callout>
 
 <Layer kind="maths">
+
+<span id="or-ckpt-maths" />
 
 A checkpoint is $c_k = (v_k, A_k, P_k)$: the state after step $k$, the tasks due next and the pending writes of those that have finished. A step either completes, giving $c_{k+1}$, or stops on a failure or an interrupt, leaving $c_k$ with more pending writes. Resuming runs only $A_k \setminus \mathrm{done}(P_k)$ and applies the union, as in the equation; so a step whose tasks have side effects pays them once per attempt of each unfinished task, and an interrupted node pays everything before its `interrupt` call once per resume.
 
@@ -61,3 +65,70 @@ out[op["key"]] = interrupt(op["payload"])
 - [Agent Harnesses Explained](https://agent-harnesses-explained.vercel.app) on permission prompts, the harness-level cousin of an interrupt.
 
 </Callout>
+
+<CheckYourself>
+
+<Check
+  id="or03-q1"
+  n={1}
+  input="number"
+  of="timeline_summary.crash.effects"
+  fmt="int"
+  q="In the crash session, how many side effects happen in all, counting the resume?"
+  href="#or-checkpoints"
+  more="A crash, then resume"
+>
+  `score` had finished, so its writes were kept as pending writes and it is
+  not re-run; `enrich` runs again and calls its API a second time:
+  <V of="timeline_summary.crash.runs" fmt="int" /> node runs in all.
+</Check>
+
+<Check
+  id="or03-q2"
+  n={2}
+  choices={[
+    "From the interrupt() call, with the answer",
+    "From its first line",
+    "From the next node",
+  ]}
+  answer={1}
+  q="A node called interrupt(…) and the human answers with Command(resume=…). Where does the node start again?"
+  href="#or-checkpoints"
+  more="A human interrupt"
+>
+  From its first line, so anything before `interrupt` runs again: the
+  notification went out twice. Code before an interrupt should be idempotent.
+</Check>
+
+<Check
+  id="or03-q3"
+  n={3}
+  choices={[
+    "Reads the nodes' results from a cache",
+    "Re-executes the nodes after the checkpoint, in a fork",
+  ]}
+  answer={1}
+  q="Replaying an earlier checkpoint (invoke with its checkpoint_id):"
+  href="#or-checkpoints"
+  more="Time travel"
+>
+  It copies the checkpoint to a `fork` and runs the nodes after it again;
+  the old run stays in the history. Replay repeats side effects too.
+</Check>
+
+</CheckYourself>
+
+<Remember>
+
+- A checkpoint holds the state, the tasks due next and the pending writes of those that finished.
+- Resume re-runs only the unfinished tasks, so their side effects happen once per attempt.
+- An interrupted node restarts from its first line on resume: keep the code before interrupt idempotent.
+- The history is a tree: updates and replays branch it, and the newest checkpoint is the thread's latest.
+
+<Keep>
+  A crash or an interrupt costs a re-run of every unfinished task, side
+  effects included: here <V of="timeline_summary.crash.effects" fmt="int" />
+  effects for one intended pair.
+</Keep>
+
+</Remember>

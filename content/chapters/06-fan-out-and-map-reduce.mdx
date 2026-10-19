@@ -9,6 +9,8 @@
 
 Map-reduce is the pattern that buys speed: split the work, run the pieces in parallel, combine. In LangGraph the split is a conditional edge that returns one **`Send`** per piece. Each `Send` becomes its own task in the next super-step, whose input is the payload it carries rather than the graph state; all of them run in that one super-step, their writes are combined by the key's reducer at the barrier, and the reduce node runs once, in the super-step after. The engine's runtime models `Send` exactly as LangGraph 1.2.14 does: <V of="conformance.sessions" fmt="int" /> sessions are checked checkpoint for checkpoint against the real library, including a map-reduce, a crash in one worker (with a checkpointer, its siblings' writes are kept and the resume re-runs only the failed worker), an interrupt in one worker, an empty fan-out and sends from two routers beside ordinary edges (the `Send` tasks' writes are applied after the edge-triggered tasks', in send order).
 
+<span id="or-limits" />
+
 Parallel on paper is not parallel in practice. Here a document of <V of="fanout.fans.0.chunks" fmt="int" /> chunks of <V of="fanout.fans.0.chunk_tokens" fmt="int" /> tokens is summarised chunk by chunk and the summaries reduced, against an endpoint with a limit of <V of="fanout.fans.0.rpm" fmt="int" /> requests and <V of="fanout.fans.0.otpm" fmt="int" /> output tokens a minute and a choice of input-token limits. The **width** is how many calls run at once: LangGraph's `max_concurrency` run setting caps the tasks of a super-step that run together.
 
 - **Without a binding limit** (<V of="fan.200000.w.32.ms" fmt="dur" /> at width 32 and 200,000 input tokens a minute) the speed-up follows **Amdahl's law** exactly: the split and the reduce cannot be parallelised, the summaries are a fraction <V of="fan.200000.parallel_fraction" fmt="f3" /> of the one-at-a-time time, and width 32 gives <V of="fan.200000.w.32.speedup" fmt="f2" />× rather than 32×.
@@ -26,6 +28,8 @@ The document, the chunk and summary sizes, the limits (a deliberately small, wor
 </Callout>
 
 <Layer kind="maths">
+
+<span id="or-amdahl" />
 
 Let $T_1$ be the time one call at a time and $f$ the fraction of it that can run in parallel (everything but the split and the reduce). With $N$ calls at once and nothing else in the way, $T_N = T_1\big((1-f) + f/N\big)$: Amdahl's law (G. M. Amdahl, _Validity of the single processor approach to achieving large scale computing capabilities_, AFIPS 1967, doi:10.1145/1465482.1465560), which the engine's tests check the simulation reproduces exactly when the limits are out of reach.
 
@@ -102,3 +106,71 @@ Run here with LangGraph 1.2.14, the version this site's runtime is checked again
 - [LLM Inference Explained](https://llm-inference-explained.vercel.app) for why a call takes as long as it does, and [Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app) for the serving side of a rate limit.
 
 </Callout>
+
+<CheckYourself>
+
+<Check
+  id="or06-q1"
+  n={1}
+  input="number"
+  of="fan.200000.w.32.speedup"
+  fmt="f2"
+  q="32 chunks summarised 32 at a time, with no binding rate limit: what speed-up over one at a time?"
+  href="#or-limits"
+  more="The limits"
+>
+  Amdahl's law: the split and the reduce cannot be parallelised, and the
+  summaries are a fraction <V of="fan.200000.parallel_fraction" fmt="f3" />
+  of the one-at-a-time time, so the speed-up is far below 32.
+</Check>
+
+<Check
+  id="or06-q2"
+  n={2}
+  input="number"
+  of="fan.80000.w.16.speedup"
+  fmt="f2"
+  q="At 80,000 input tokens a minute and width 16, what speed-up does the run reach?"
+  href="#or-limits"
+  more="The limits"
+>
+  Less than Amdahl's <V of="fan.80000.w.16.amdahl" fmt="f2" />×: the workers
+  need more input tokens than the bucket holds, so later calls wait for
+  capacity, and widening further buys nothing.
+</Check>
+
+<Check
+  id="or06-q3"
+  n={3}
+  choices={[
+    "Each doubling of width roughly halves the time",
+    "Nothing: every width from 2 up finishes at the same time",
+    "It gets slower",
+  ]}
+  answer={1}
+  q="At 40,000 input tokens a minute, what does widening the fan-out beyond 2 buy?"
+  href="#or-limits"
+  more="The limits"
+>
+  Nothing: the bucket is the whole story, <V of="fan.40000.w.2.ms" fmt="dur" />
+  at every width, under the bucket's bound of
+  <V of="fan.40000.w.2.ceiling" fmt="f2" />×. More parallelism only makes more
+  calls wait.
+</Check>
+
+</CheckYourself>
+
+<Remember>
+
+- In LangGraph a fan-out is a conditional edge returning one Send per piece; all of them run in one super-step.
+- The speed-up is capped by Amdahl's law: the serial part of the work.
+- It is also capped by the endpoint's token bucket: the time to admit every token beyond its capacity.
+- Which ceiling binds is arithmetic you can do before you build it.
+
+<Keep>
+  The fan-out is limited by the slower of two ceilings, the serial fraction
+  and the rate limit: here <V of="fan.80000.w.16.speedup" fmt="f2" />× at
+  width 16, not 16×.
+</Keep>
+
+</Remember>
