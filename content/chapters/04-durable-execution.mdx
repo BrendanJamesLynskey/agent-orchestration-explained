@@ -9,12 +9,16 @@
 
 A checkpoint after every super-step is one way to survive a crash. **Durable execution** engines such as [Temporal](https://docs.temporal.io/workflows) take the idea to its end: a **workflow** is ordinary code whose every call to the outside world (an **activity**) and its result are appended to an **event history**. When the worker running it dies, another worker **replays** the code from the top against the history: each call that is already recorded returns its recorded result at once, without running, and execution goes live where the history ends.
 
+<span id="or-order" />
+
 The animation runs an order workflow: reserve stock, charge the card £40, choose a shipping option, ship, send a receipt. Inject a fault and watch the history and the outside world:
 
 - **Crash after the charge.** The charge's result is in the history. The new worker replays, the charge comes back from the history, and the card is charged once (<V of="durable_summary.crash_after_charge|nokey|marker.charges" fmt="int" />).
 - **Crash in the charge.** The payment service took the money, but the worker died before the result was recorded. On replay the history shows the charge as scheduled but not completed, so it must run again: execution is **at least once**. Without a key the card is charged <V of="durable_summary.crash_in_charge|nokey|marker.charges" fmt="int" /> times (£<V of="durable_summary.crash_in_charge|nokey|marker.charged" fmt="int" />). With an **idempotency key** derived from the workflow and the step (`order-1042/1`), the service recognises the second request and returns the first result: one charge. **Exactly-once effects = at-least-once execution + idempotent effects.**
 - **Lost reply.** The same without a crash: the charge succeeds but its reply is lost; after a <V of="consts.timeout_ms" fmt="ms" /> timeout the worker retries. <V of="durable_summary.lost_reply|nokey|marker.charges" fmt="int" /> charges without a key, <V of="durable_summary.lost_reply|key|marker.charges" fmt="int" /> with one.
 - **Crash in shipping, with the clock read in the code.** The code chooses express shipping because the clock says it is early. The replay runs later, the same line now chooses standard, and the command no longer matches the history: a **non-determinism error** at the first command that differs, and the workflow is stuck until the code is fixed. Record the choice in the history (a marker: the role Temporal's `SideEffect` call plays) and the replay reads it back: the run completes. Temporal's documentation puts the rule plainly: workflow code "must be deterministic to support replay".
+
+<span id="or-langgraph-durable" />
 
 LangGraph's checkpoints play the history's part, and the same rules apply to its nodes: a node that is re-run after a crash or an interrupt repeats its side effects, so make them idempotent, and keep anything that varies between runs (the clock, random numbers, a model's sampled answer) in the state rather than recomputed. Its `durability` setting chooses when the writes are persisted: `"sync"` before the next step starts, `"async"` while the next step runs, `"exit"` only when the graph exits (the `Durability` type in langgraph <V of="conformance.langgraph" fmt="raw" />'s `types.py`).
 
@@ -27,6 +31,8 @@ The workflow, the payment service, the shipping cut-off and every time (the <V o
 </Callout>
 
 <Layer kind="maths">
+
+<span id="or-charges-maths" />
 
 Let each attempt's reply be lost independently with probability $q$, and allow $A$ attempts. Without a key every attempt charges, and attempt $i+1$ happens only if the first $i$ replies were lost, so the expected number of charges is the geometric sum in the equation; the card is charged at least twice exactly when the first reply is lost, probability $q$ (for $A \ge 2$), and the order fails with every reply lost, probability $q^A$. With a key the service charges once whatever happens to the replies. At $q = 0.2$ and $A = 3$ the sum is $1 + 0.2 + 0.04 = 1.24$; the seeded sweep in the widget gives the simulated value beside each closed form, and the engine's tests require them to agree within four standard errors.
 
@@ -56,3 +62,67 @@ if (ev.type !== "activity_scheduled" || ev.activity !== name) return nondet(ev, 
 - [Agent Protocols Explained](https://agent-protocols-explained.vercel.app) for the requests these activities would send.
 
 </Callout>
+
+<CheckYourself>
+
+<Check
+  id="or04-q1"
+  n={1}
+  input="number"
+  of="durable_summary.crash_in_charge|nokey|marker.charges"
+  fmt="int"
+  q="The worker dies after the payment service took the money but before the result was recorded. Without an idempotency key, how many times is the card charged?"
+  href="#or-order"
+  more="The order workflow"
+>
+  The history shows the charge scheduled but not completed, so replay runs it
+  again: execution is at least once. With a key derived from the workflow and
+  the step, the service returns the first result and charges once.
+</Check>
+
+<Check
+  id="or04-q2"
+  n={2}
+  input="number"
+  of="durable.sweeps.10.expected_no_key"
+  q="Each reply is lost with probability 0.2 and the worker tries up to 3 times, with no key. What is the expected number of charges per order?"
+  href="#or-charges-maths"
+  more="The arithmetic of retries"
+>
+  $1 + q + q^2$: attempt $i + 1$ happens only if the first $i$ replies were
+  lost. The seeded sweep of <V of="durable.sweeps.10.runs" fmt="int" /> orders
+  measured <V of="durable.sweeps.10.mean_no_key" fmt="num" />.
+</Check>
+
+<Check
+  id="or04-q3"
+  n={3}
+  choices={[
+    "Standard shipping, and the run completes",
+    "A non-determinism error: the replay's command differs from the history",
+    "Express shipping again",
+  ]}
+  answer={1}
+  q="The workflow reads the clock to choose express or standard shipping, and crashes. The replay runs later. What happens?"
+  href="#or-order"
+  more="The order workflow"
+>
+  The same line now chooses differently and the command no longer matches the
+  history. Record the choice in the history (a marker, Temporal's
+  `SideEffect`) and the replay reads it back.
+</Check>
+
+</CheckYourself>
+
+<Remember>
+
+- Durable execution records every activity and its result; a new worker replays the code against the history.
+- Execution is at least once: exactly-once effects need idempotent effects (an idempotency key).
+- Workflow code must be deterministic: record the clock, random numbers and model answers instead of recomputing them.
+- LangGraph's checkpoints play the history's part, and the same rules apply to its nodes.
+
+<Keep>
+  Exactly-once effects = at-least-once execution + idempotent effects.
+</Keep>
+
+</Remember>

@@ -9,7 +9,11 @@
 
 One workflow at a time tells you its latency and cost. A service runs hundreds at once, and then the questions change: how long do requests **wait**, how bad is the **tail**, and what does a **successful** task cost once retries and failures are counted? The animation is a discrete-event simulation, the same method used for the inference servers on the [Inference Trade-offs](https://inference-tradeoffs-explained.vercel.app) site: <V of="scale.workflows" fmt="int" /> workflows arrive at random (a Poisson process), every model call joins one queue in front of the endpoint, the client admits calls while the concurrency limit (<V of="scale.defaults.concurrency" fmt="int" />) and the token buckets allow, and a failed call (<V of="scale.defaults.fail" fmt="pct" /> of attempts) is retried after a jittered exponential backoff, up to <V of="scale.defaults.max_attempts" fmt="int" /> attempts.
 
+<span id="or-capacity" />
+
 Each pattern has a **capacity**: the workflows per minute the binding limit allows. A supervisor workflow makes <V of="load.supervisor.calls" fmt="int" /> calls and sends <V of="load.supervisor.uncached_in" fmt="int" /> uncached input tokens, so at <V of="scale.defaults.itpm" fmt="int" /> input tokens a minute it can sustain <V of="load.supervisor.capacity.min" fmt="f2" /> workflows a minute, and its requests (<V of="load.supervisor.capacity.requests" fmt="f2" />) bind almost as soon. Below capacity, latency is just the workflow's own: at 2 a minute the supervisor's p95 is <V of="load.supervisor.2.p95" fmt="dur" />. At 3 a minute (load <V of="load.supervisor.3.rho" fmt="f2" />) calls start to queue and the p95 is already <V of="load.supervisor.3.p95" fmt="dur" />; at 4 a minute, past capacity, the queue grows for as long as arrivals continue and the p95 is <V of="load.supervisor.4.p95" fmt="dur" />. That is the **knee**: well below capacity, adding load costs almost nothing; near it, the tail explodes. The single agent's capacity is <V of="load.single.capacity.min" fmt="f2" /> a minute, so it sails through every load up to 6 a minute with a p95 near <V of="load.single.6.p95" fmt="dur" />.
+
+<span id="or-utilisation" />
 
 The cost per success barely moves with load (<V of="load.supervisor.2.cost_per_success" fmt="usd" /> to <V of="load.supervisor.4.cost_per_success" fmt="usd" /> for the supervisor): queueing costs time, not tokens. What it does cost is utilisation of the wrong thing: the concurrency slots are mostly idle (<V of="scale.details.supervisor.utilisation" fmt="pct" /> busy at 3 a minute) while the input-token bucket is the bottleneck. Raising the concurrency limit would change nothing; caching more of each prompt (cache reads do not count toward the input limit) or a higher tier would.
 
@@ -24,6 +28,8 @@ The limits (<V of="scale.defaults.rpm" fmt="int" /> requests, <V of="scale.defau
 <Layer kind="maths">
 
 Let a workflow make $k$ calls with $I$ uncached input and $O$ output tokens in all. The buckets admit at most RPM$/k$, ITPM$/I$ and OTPM$/O$ workflows a minute, and $C$ concurrent slots admit at most $C$ divided by the busy time per workflow; the capacity $\mu$ is the smallest. When the arrival rate $\lambda$ exceeds $\mu$ the queue grows without bound (the simulation's run ends only because arrivals stop); below it the queue is finite, but its waits grow sharply as $\rho = \lambda/\mu \to 1$, the shape every queueing model shares (for the simplest, M/M/1, the mean time in the system is $1/(\mu - \lambda)$). The engine's tests check that the simulated throughput saturates at $\mu$ when it is overloaded.
+
+<span id="or-little" />
 
 **Little's law**, $L = \lambda W$ (J. D. C. Little, _A proof for the queuing formula L = λW_, Operations Research 1961, doi:10.1287/opre.9.3.383), holds for any stable system: the average number of workflows in the system is the arrival rate times the average time each spends there. In the simulation it is an identity, which the engine's tests check: the area under the "in system" curve equals the sum of the workflows' latencies.
 
@@ -52,3 +58,69 @@ if (a < P.max_attempts) {
 - Chapter 6 for the bucket bound on a single fan-out, and chapter 9 for turning these runs into a choice.
 
 </Callout>
+
+<CheckYourself>
+
+<Check
+  id="or08-q1"
+  n={1}
+  input="number"
+  of="load.supervisor.capacity.min"
+  fmt="f2"
+  q="With the input limit of 40,000 tokens a minute, how many supervisor workflows a minute can the endpoint sustain?"
+  href="#or-capacity"
+  more="Capacity"
+>
+  The input limit over the <V of="load.supervisor.uncached_in" fmt="int" /> uncached input tokens per workflow; its requests
+  (<V of="load.supervisor.capacity.requests" fmt="f2" /> a minute) bind almost
+  as soon. The smallest of the limits is the capacity.
+</Check>
+
+<Check
+  id="or08-q2"
+  n={2}
+  input="number"
+  v="ch08.p95Ratio"
+  q="Going from 2 to 4 supervisor workflows a minute, past capacity: how many times longer does the p95 latency get?"
+  href="#or-capacity"
+  more="Capacity"
+>
+  From <V of="load.supervisor.2.p95" fmt="dur" /> to
+  <V of="load.supervisor.4.p95" fmt="dur" />: well below capacity load costs
+  almost nothing; near and past it, the tail explodes.
+</Check>
+
+<Check
+  id="or08-q3"
+  n={3}
+  choices={[
+    "Raise the concurrency limit",
+    "Cache more of each prompt, or move to a higher tier",
+    "Retry faster",
+  ]}
+  answer={1}
+  q="The concurrency slots are mostly idle while the queue grows. What would raise the supervisor's capacity?"
+  href="#or-utilisation"
+  more="What the bottleneck is"
+>
+  The input-token bucket is the bottleneck, and cache reads do not count
+  toward it. The slots are only <V of="scale.details.supervisor.utilisation" fmt="pct" />
+  busy, so more of them changes nothing.
+</Check>
+
+</CheckYourself>
+
+<Remember>
+
+- A pattern's capacity is the smallest of what each limit allows: requests, input tokens, output tokens, concurrency.
+- Below capacity latency is the workflow's own; near it the tail grows without bound.
+- Queueing costs time, not tokens: the cost per success barely moves with load.
+- Little's law, L = λW, holds for any stable system.
+
+<Keep>
+  Check capacity before latency: the supervisor sustains
+  <V of="load.supervisor.capacity.min" fmt="f2" /> workflows a minute, and its
+  p95 grows <V v="ch08.p95Ratio" fmt="num" />-fold from 2 to 4.
+</Keep>
+
+</Remember>

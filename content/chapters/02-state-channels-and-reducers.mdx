@@ -9,11 +9,15 @@
 
 The state is a set of **channels**, one per key, and each channel has a **reducer**: the rule that turns the current value and a write into the new value. A key declared without one keeps the last value written, and accepts **one write per super-step**. A key declared `Annotated[list, operator.add]` appends; any two-argument function will do, such as `max`.
 
+<span id="or-parallel-writes" />
+
 Parallel nodes are where this matters. The animation runs a planner and then two branches, `fast` (<V of="reducers.sessions.merge_add.graph.nodes.1.ms" fmt="ms" />) and `careful` (<V of="reducers.sessions.merge_add.graph.nodes.2.ms" fmt="ms" />), that both write the key `answer` in the same super-step. Neither sees the other's write; both writes meet at the barrier.
 
 - **No reducer**: two writes to one key in one step is an error, LangGraph's `InvalidUpdateError` ("Can receive only one value per step"). The step saves no checkpoint; the last good one stays the thread's latest.
 - **Add**: both writes are kept, `answer` = <V of="reducers.sessions.merge_add.supersteps.frames.11.values.answer" fmt="val" />. Note the order: `careful` finishes last but its write comes first, because LangGraph applies a step's writes in task order (for plain nodes, sorted by node name), not in the order they finish. The result does not depend on timing, so a run replays the same way.
 - **Max**: a custom reducer keeps the larger answer, <V of="reducers.sessions.merge_max.supersteps.frames.11.values.answer" fmt="int" />.
+
+<span id="or-router-view" />
 
 The fourth graph is about what a node can see. Node `p` has a conditional edge whose router goes to `r` only if `x` = 7, and its sibling `q` sets `x` = 7 in the same step. The router runs with the snapshot plus **its own node's** writes, not its sibling's, so it sees no `x` and the run ends without `r`, although the state after the step does hold `x` = <V of="reducers.sessions.router_view.supersteps.frames.5.values.x" fmt="int" />.
 
@@ -26,6 +30,8 @@ The node durations are illustrative; the ordering, the error and what the router
 </Callout>
 
 <Layer kind="maths">
+
+<span id="or-reducer-maths" />
 
 Let $W_s(k) = (w_{(1)}, \ldots, w_{(m)})$ be the writes to key $k$ in super-step $s$, sorted by the writing node's name. The new value is the left fold in the equation above. With $r_k(a, b) = b$ and $m > 1$ the step fails. With list concatenation the result keeps every write in that order; with an associative and commutative reducer such as $\max$ or integer $+$ the order does not matter at all, which is the property to aim for when parallel branches write one key.
 
@@ -64,3 +70,74 @@ fields[s["key"]] = Annotated[t, operator.add]
 - [Agent Context Explained](https://agent-context-explained.vercel.app) for what goes into a state key that holds messages.
 
 </Callout>
+
+<CheckYourself>
+
+<Check
+  id="or02-q1"
+  n={1}
+  choices={[
+    "The later write wins",
+    "An InvalidUpdateError: one value per step",
+    "Both are kept in a list",
+  ]}
+  answer={1}
+  q="Two parallel nodes write the key answer in one super-step, and the key has no reducer. What happens?"
+  href="#or-parallel-writes"
+  more="Two writes, one key"
+>
+  LangGraph's `InvalidUpdateError`: a key without a reducer accepts one write
+  per super-step. The step saves no checkpoint, and the last good one stays
+  the thread's latest.
+</Check>
+
+<Check
+  id="or02-q2"
+  n={2}
+  choices={[
+    "fast's first: it finished first",
+    "careful's first: writes are applied in node-name order",
+    "It varies from run to run",
+  ]}
+  answer={1}
+  q="With an add reducer, fast finishes before careful. In what order do their writes land in answer?"
+  href="#or-parallel-writes"
+  more="Two writes, one key"
+>
+  `careful` before `fast`: LangGraph applies a step's writes in task order,
+  for plain nodes sorted by name, not in the order they finish. The result
+  does not depend on timing, so the run replays the same way.
+</Check>
+
+<Check
+  id="or02-q3"
+  n={3}
+  choices={[
+    "Yes: the state after the step holds x = 7",
+    "No: it sees only the snapshot plus its own node's writes",
+  ]}
+  answer={1}
+  q="Node p's router goes to r if x = 7; its sibling q sets x = 7 in the same step. Does the router see it?"
+  href="#or-router-view"
+  more="What a router sees"
+>
+  No, so the run ends without `r`, although the state after the step holds
+  `x` = <V of="reducers.sessions.router_view.supersteps.frames.5.values.x" fmt="int" />.
+  If a decision must depend on a sibling, put the router after a join.
+</Check>
+
+</CheckYourself>
+
+<Remember>
+
+- Each state key is a channel with a reducer: the rule that turns the value and a write into the new value.
+- No reducer means one write per super-step; parallel writers need one (add, max, any two-argument function).
+- A step's writes are applied in task order (node name), not finishing order, so runs are reproducible.
+- A router sees the snapshot plus its own node's writes, never a sibling's.
+
+<Keep>
+  For parallel writers, choose an associative, commutative reducer (max, +):
+  then the order does not matter at all.
+</Keep>
+
+</Remember>

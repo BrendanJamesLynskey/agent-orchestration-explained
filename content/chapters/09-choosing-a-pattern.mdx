@@ -9,10 +9,14 @@
 
 Advice about agent architectures is plentiful and mostly unfalsifiable. A simulation turns it into a table you can argue with. Every pattern of chapter 5 is run through chapter 8's discrete-event simulation on the same task and load (<V of="choose.workflows" fmt="int" /> workflows each, with the rate limits, failures and retries of chapter 8), and each row records what you would measure in production: the share of workflows that succeed (with its 95% interval), the p95 latency, the cost per **successful** task, and the capacity the rate limits allow. Choose your constraints; the animation applies them one at a time, strikes out the patterns that miss each, and picks the most reliable survivor, the cheaper one on a tie.
 
+<span id="or-two-tasks" />
+
 What the two tasks say:
 
 - **Four sub-questions** (arriving <V of="choose.rates.0" fmt="num" /> a minute): the single agent is the answer to almost every question you can ask. It succeeds <V of="pick.4.single.success" fmt="pct1" /> of the time, has the lowest p95 (<V of="pick.4.single.p95" fmt="dur" />), the lowest cost per success (<V of="pick.4.single.cost_per_success" fmt="usd" />) and the most headroom (<V of="pick.4.single.capacity" fmt="f2" /> workflows a minute). Debate is a little more reliable (<V of="pick.4.debate.success" fmt="pct1" />), so "success at least 80%" with no other constraint picks it, but at this load it is near its capacity (<V of="pick.4.debate.capacity" fmt="f2" />) and its p95 is <V of="pick.4.debate.p95" fmt="dur" />. Add any latency constraint and the single agent is back.
 - **Sixteen sub-questions** (<V of="choose.rates.1" fmt="num" /> a minute): nothing reaches 80%, so the first lesson is that the task needs a better model or a verifier (chapter 7), not a cleverer topology. Ask for 40% within three minutes and only map-reduce is left: <V of="pick.16.map_reduce.success" fmt="pct1" />, p95 <V of="pick.16.map_reduce.p95" fmt="dur" />, <V of="pick.16.map_reduce.cost_per_success" fmt="usd" /> per success. The supervisor is about as reliable (<V of="pick.16.supervisor.success" fmt="pct1" />) but slower (<V of="pick.16.supervisor.p95" fmt="dur" />); the single agent, starved by its own context, succeeds <V of="pick.16.single.success" fmt="pct1" /> of the time; the swarm, whose shared history outgrows the input limit, can barely run at all (<V of="pick.16.swarm.capacity" fmt="f2" /> workflows a minute).
+
+<span id="or-rules" />
 
 Three rules come out of the runs rather than from opinion:
 
@@ -59,3 +63,69 @@ for (const r of table) {
 - The companion sites on [harnesses](https://agent-harnesses-explained.vercel.app), [protocols](https://agent-protocols-explained.vercel.app) and [context](https://agent-context-explained.vercel.app), and on the model side [Inference Trade-offs Explained](https://inference-tradeoffs-explained.vercel.app).
 
 </Callout>
+
+<CheckYourself>
+
+<Check
+  id="or09-q1"
+  n={1}
+  choices={["Single agent", "Debate", "Map-reduce"]}
+  answer={1}
+  q="Four sub-questions, and the only constraint is success of at least 80%. Which pattern is picked?"
+  href="#or-two-tasks"
+  more="What the two tasks say"
+>
+  Debate, the most reliable (<V of="pick.4.debate.success" fmt="pct1" />). But
+  it is near its capacity at this load and its p95 is
+  <V of="pick.4.debate.p95" fmt="dur" />: add any latency constraint and the
+  single agent is back.
+</Check>
+
+<Check
+  id="or09-q2"
+  n={2}
+  choices={["Single agent", "Supervisor", "Swarm", "Map-reduce"]}
+  answer={3}
+  q="Sixteen sub-questions; ask for 40% success within three minutes. Which pattern is left?"
+  href="#or-two-tasks"
+  more="What the two tasks say"
+>
+  Map-reduce: <V of="pick.16.map_reduce.success" fmt="pct1" />, p95
+  <V of="pick.16.map_reduce.p95" fmt="dur" />. The supervisor is about as
+  reliable but slower (<V of="pick.16.supervisor.p95" fmt="dur" />).
+</Check>
+
+<Check
+  id="or09-q3"
+  n={3}
+  input="slider"
+  min={0}
+  max={100}
+  step={0.1}
+  of="pick.16.single.success"
+  fmt="pct1"
+  abs={5}
+  q="On the sixteen-question task, how often does the single agent succeed in the simulation?"
+  href="#or-two-tasks"
+  more="What the two tasks say"
+>
+  Starved by its own context. Nothing reaches 80% on this task: the first
+  lesson is that it needs a better model or a verifier, not a cleverer
+  topology.
+</Check>
+
+</CheckYourself>
+
+<Remember>
+
+- Start with one agent; split only when its context grows past what the model handles well.
+- Parallelise to cut latency: map-reduce costs about what a supervisor does and is several times faster.
+- Check capacity before latency: the binding limit is usually tokens, not concurrency.
+- Patterns whose intervals overlap are not distinguishable: the honest answer is "either, and measure".
+
+<Keep>
+  Cost per success counts the failures: an unreliable pattern pays for every
+  run it loses.
+</Keep>
+
+</Remember>

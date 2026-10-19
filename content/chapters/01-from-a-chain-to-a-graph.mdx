@@ -9,7 +9,11 @@
 
 A **chain** calls one step after another: retrieve, draft, review. That is enough until a step has to loop (call a tool, look at the result, decide again), run beside another step, wait for a person, or survive a crash. An **agent orchestrator** such as [LangGraph](https://github.com/langchain-ai/langgraph) describes the work as a **graph** instead: **nodes** are functions of a shared **state**, **edges** say what runs next, and a **conditional edge** (a router) picks the next node from the state, which is how an agent loops until it is done.
 
+<span id="or-supersteps" />
+
 The graph runs in **super-steps**, the bulk-synchronous model of Google's Pregel (Malewicz et al., SIGMOD 2010). In each super-step, every node that an edge triggered runs, and they all read the **same snapshot** of the state. None of them sees another's writes: the writes wait at a **barrier** until the last node of the step finishes, then they are applied to the state (chapter 2 shows how), a **checkpoint** is saved (chapter 3), and the edges out of the nodes that ran decide the next step's nodes. When no edge triggers anything, the run is done.
+
+<span id="or-fanout" />
 
 The animation plays this on four small graphs. Pick **fan-out**: a planner triggers two researchers, which run in the same super-step; a **join** edge (the bar at its arrow head) waits for both before `compose` runs. The step lasts as long as its slowest node, so the fan-out takes <V of="graph.sessions.fanout.supersteps.graph_ms" fmt="ms" /> in <V of="graph.sessions.fanout.supersteps.steps" fmt="int" /> super-steps against <V of="graph.sessions.fanout.supersteps.sequential_ms" fmt="ms" /> one node at a time, a speed-up of <V of="derived.fanout.speedup" fmt="f2" />×. The **agent loop** (a model node and a tools node, with a router that loops back until three turns are done) gains nothing from the graph's parallelism, <V of="derived.react_loop.speedup" fmt="f2" />×: what it gains is the loop itself, and the checkpoints and interrupts of the next two chapters. **Loop + join** puts a fan-out inside a loop: the join waits afresh in each round.
 
@@ -24,6 +28,8 @@ The node durations and the <V of="consts.ckpt_ms" fmt="ms" /> checkpoint write a
 </Callout>
 
 <Layer kind="maths">
+
+<span id="or-graph-maths" />
 
 Let $A_s$ be the set of nodes that run in super-step $s$ and $t_v$ the time node $v$ takes. Because a step ends at its barrier, the graph's time is the sum over steps of the slowest node, plus a checkpoint write $c$ per step, as in the equation above. Running the same node runs one at a time costs $\sum_v (t_v + c)$, so the speed-up is at most the width of the widest step, and only when the parallel nodes take equal time; a step with one slow node and one fast one wastes the fast node's slack. This is the barrier's price for a simple, reproducible model: every node in a step sees the same state, whatever order the nodes finish in.
 
@@ -67,3 +73,69 @@ else:
 - LangGraph's own [Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api) and [Pregel](https://docs.langchain.com/oss/python/langgraph/pregel) pages.
 
 </Callout>
+
+<CheckYourself>
+
+<Check
+  id="or01-q1"
+  n={1}
+  input="number"
+  of="derived.fanout.speedup"
+  fmt="f2"
+  q="The fan-out graph runs two researchers side by side. How many times faster is it than running every node one at a time?"
+  href="#or-fanout"
+  more="Four small graphs"
+>
+  Not twice: a super-step lasts as long as its slowest node, the other steps
+  have one node each, and every step writes a checkpoint. The fan-out takes
+  <V of="graph.sessions.fanout.supersteps.graph_ms" fmt="ms" /> against
+  <V of="graph.sessions.fanout.supersteps.sequential_ms" fmt="ms" />.
+</Check>
+
+<Check
+  id="or01-q2"
+  n={2}
+  choices={[
+    "Yes: it sees the write at once",
+    "No: both read the same snapshot, and writes wait at the barrier",
+    "Only if it finishes later",
+  ]}
+  answer={1}
+  q="Two nodes run in the same super-step. Does one see the other's write?"
+  href="#or-supersteps"
+  more="Super-steps"
+>
+  No. Every node in a step reads the same snapshot; the writes are applied at
+  the barrier when the last node finishes. That is what makes a run
+  reproducible whatever order the nodes finish in.
+</Check>
+
+<Check
+  id="or01-q3"
+  n={3}
+  input="number"
+  of="derived.react_loop.speedup"
+  fmt="f2"
+  q="The agent loop (a model node, a tools node, a router back): what speed-up does the graph's parallelism give it?"
+  href="#or-fanout"
+  more="Four small graphs"
+>
+  None: one node runs at a time. What the loop gains from the graph is the
+  loop itself, and the checkpoints and interrupts of the next two chapters.
+</Check>
+
+</CheckYourself>
+
+<Remember>
+
+- A graph has nodes (functions of a shared state), edges, and conditional edges that pick the next node from the state.
+- It runs in super-steps: every triggered node reads the same snapshot; writes are applied at the barrier; a checkpoint follows.
+- A step lasts as long as its slowest node, so the speed-up is at most the width of the widest step.
+- A join edge waits for all its sources; two plain edges in different steps run a node twice.
+
+<Keep>
+  Parallel branches gave <V of="derived.fanout.speedup" fmt="f2" />×, not 2×:
+  the barrier waits for the slowest node.
+</Keep>
+
+</Remember>

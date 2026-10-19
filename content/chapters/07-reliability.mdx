@@ -7,7 +7,11 @@
 
 <Layer kind="concept">
 
+<span id="or-chain" />
+
 Every step of a workflow can go wrong, and the failures multiply. If each step is right with probability $p$, a chain of $n$ steps is right with probability $p^n$: at 92% a step (5% visible errors, 3% silent ones), ten steps succeed <V of="rel.none.10.closed" fmt="pct1" /> of the time and thirty steps <V of="rel.none.30.closed" fmt="pct1" />. The animation runs 48 seeded workflows of ten steps, one step at a time; the chart beside it puts the closed form (lines) against 2,000 simulated runs at each length (dots, with 95% intervals).
+
+<span id="or-two-kinds" />
 
 Two kinds of failure need two different fixes:
 
@@ -66,3 +70,73 @@ if (verifier) {
 - LangGraph nodes take a `retry_policy`; see the [Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api).
 
 </Callout>
+
+<CheckYourself>
+
+<Check
+  id="or07-q1"
+  n={1}
+  input="slider"
+  min={0}
+  max={100}
+  step={0.1}
+  of="rel.none.10.closed"
+  fmt="pct1"
+  abs={5}
+  q="Each step is right 92% of the time. How often does a ten-step chain succeed with no retries?"
+  href="#or-chain"
+  more="Failures multiply"
+>
+  $0.92^{10}$: failures multiply. Thirty steps succeed only
+  <V of="rel.none.30.closed" fmt="pct1" /> of the time.
+</Check>
+
+<Check
+  id="or07-q2"
+  n={2}
+  input="slider"
+  min={0}
+  max={100}
+  step={0.1}
+  of="rel.retry.10.closed"
+  fmt="pct1"
+  abs={5}
+  q="Now allow three attempts per step. How often does the ten-step chain succeed?"
+  href="#or-two-kinds"
+  more="Two kinds of failure"
+>
+  Retries fix the visible errors, for about
+  <V of="rel.retry.10.attempts" fmt="f2" /> attempts per run, but not the
+  silent ones, which pass straight through.
+</Check>
+
+<Check
+  id="or07-q3"
+  n={3}
+  choices={["More retries", "A verifier", "A bigger timeout"]}
+  answer={1}
+  q="What catches a silent error, a plausible wrong answer?"
+  href="#or-two-kinds"
+  more="Two kinds of failure"
+>
+  A verifier: a test suite, a schema, a second model that rejects a wrong
+  result. With retries and a verifier, ten steps succeed
+  <V of="rel.verify.10.closed" fmt="pct1" /> of the time.
+</Check>
+
+</CheckYourself>
+
+<Remember>
+
+- A chain of n steps, each right with probability p, is right with probability pⁿ.
+- Visible errors can be retried; silent ones pass through retries untouched.
+- A verifier turns silent errors into visible ones, at the cost of some false rejections.
+- Make failures visible wherever you can: a visible failure costs one retry, a silent one the whole run.
+
+<Keep>
+  Ten steps at 92%: <V of="rel.none.10.closed" fmt="pct1" /> alone,
+  <V of="rel.retry.10.closed" fmt="pct1" /> with retries,
+  <V of="rel.verify.10.closed" fmt="pct1" /> with retries and a verifier.
+</Keep>
+
+</Remember>

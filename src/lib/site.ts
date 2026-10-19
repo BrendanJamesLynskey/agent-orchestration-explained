@@ -25,7 +25,7 @@ export const GITHUB_URL =
 /** The author, credited in one quiet line at the foot of the About page. */
 export const AUTHOR = {
   name: "Brendan Lynskey",
-  url: "https://github.com/BrendanJamesLynskey",
+  url: "https://brendanjameslynskey.github.io/",
 } as const;
 export const ENGINE_URL =
   "https://github.com/BrendanJamesLynskey/Agent_Loop_Sim";
